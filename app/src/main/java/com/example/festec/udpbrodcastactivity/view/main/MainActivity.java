@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
     private static final int INIT_MAP_DONE = 69;
     private static final String TAG = "waibao";
     private SingleLocalSocket singleLocalSocket;
-    private PortAdapter adapter;
 
 
     //UI
@@ -47,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        adapter = new PortAdapter(GlobalValues.portMacMap);
         initUI();
         // initSocket
         singleLocalSocket = SingleLocalSocket.getInstance();
@@ -87,7 +85,6 @@ public class MainActivity extends AppCompatActivity {
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        recyclerView.setAdapter(adapter);
 
         // 下拉刷新
         swipeRefresh = findViewById(R.id.swipe_refresh);
@@ -128,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     BufferedWriter bw = singleLocalSocket.getBw();
-                    bw.write("virtualMap");
+                    bw.write("virtualMap" + "|" + GlobalValues.udpPort);
                     bw.newLine();
                     bw.flush();
                 } catch (IOException e) {
@@ -147,7 +144,8 @@ public class MainActivity extends AppCompatActivity {
                     while (isRun && ((line = br.readLine()) != null)) {
                         if (!"mapDone".equals(line)) {
                             String[] strings = line.split("\\|");
-                            if (GlobalValues.portList.contains(Integer.parseInt(strings[0]))) {
+                            if (!GlobalValues.localMac.equalsIgnoreCase(strings[1])) {
+                                GlobalValues.portList.add(Integer.parseInt(strings[0]));
                                 GlobalValues.portMacMap.put(Integer.parseInt(strings[0]), strings[1]);
                             }
                         } else {
@@ -196,7 +194,8 @@ public class MainActivity extends AppCompatActivity {
 //            super.handleMessage(msg);
             switch (msg.what) {
                 case INIT_MAP_DONE:
-                    adapter.notifyDataSetChanged();
+                    PortAdapter adapter = new PortAdapter(GlobalValues.portMacMap);
+                    recyclerView.setAdapter(adapter);
                     if (swipeRefresh.isRefreshing()) {
                         swipeRefresh.setRefreshing(false);
                     }

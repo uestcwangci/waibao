@@ -27,20 +27,24 @@ public class UdpServer {
 
 
     public void start(final byte[] data){
-        try {
-            ds = new DatagramSocket();
-            for (final Integer udpPort : portList) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        runServer(udpPort, data);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ds = new DatagramSocket();
+                    for (final Integer udpPort : portList) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                runServer(udpPort, data);
+                            }
+                        }).start();
                     }
-                }).start();
+                } catch (SocketException e) {
+                    e.printStackTrace();
+                }
             }
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
-
+        }).start();
     }
 
     private void runServer(int udpPort, byte[] data) {

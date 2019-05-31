@@ -3,6 +3,8 @@ package com.example.festec.udpbrodcastactivity.module.protocol;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.festec.udpbrodcastactivity.module.GlobalValues;
+import com.example.festec.udpbrodcastactivity.module.message.BaseMessage;
 import com.example.festec.udpbrodcastactivity.module.message.HeatBeatMessage;
 import com.example.festec.udpbrodcastactivity.module.message.MP3Message;
 import com.example.festec.udpbrodcastactivity.module.message.PictureMessage;
@@ -24,12 +26,10 @@ public class PackEmergencyProtocol<T> {
     private EmergencyProtocol<T> emergencyProtocol;
     private EmergencyHeader header;
     private EmergencyBody<T> body;
-    private Context context;
 
 
 
-    public PackEmergencyProtocol(Context context) {
-        this.context = context;
+    public PackEmergencyProtocol() {
         emergencyProtocol = new EmergencyProtocol<>();
         header = new EmergencyHeader();
         body = new EmergencyBody<>();
@@ -83,11 +83,8 @@ public class PackEmergencyProtocol<T> {
     /****设置消息头的信息****/
     private void setHeaderMessage(T t) {
         //设置源设备逻辑地址
-        byte[] sourceAddress = ResourceEncodeUtils.getSourceAddress(context);
-        if (sourceAddress != null) {
-            PrefUtils.setString(context, "sourceAddress", ByteUtils.bytesToHexString(sourceAddress));
-            header.setSourceAddress(sourceAddress);
-        }
+        byte[] sourceAddress = ByteUtils.macToByte(GlobalValues.localMac);
+        header.setSourceAddress(sourceAddress);
         //设置数据包的消息编号
         header.setMessageId((short) 1);
         //设置数据包类型为请求
@@ -102,8 +99,8 @@ public class PackEmergencyProtocol<T> {
             header.setPacketLength(24 + 2 + 12 * body.getDestinationCount() + 2 + 4 + ((QueryMessage) t).getOrderLength() + 4);
         } else if (t instanceof SettingsMessage) {
             header.setPacketLength(24 + 2 + 12 * body.getDestinationCount() + 2 + 4 + ((SettingsMessage) t).getOrderLength() + 4);
-        } else if (t instanceof TextMessage) {
-            header.setPacketLength(24 + 2 + body.getDestinationCount() + 2 + 2 + ((TextMessage) t).getOrderLength() + 4);
+        } else if (t instanceof BaseMessage) {
+            header.setPacketLength(24 + 2 + body.getDestinationCount() + 2 + 2 + ((BaseMessage) t).getOrderLength() + 4);
         }
     }
 }

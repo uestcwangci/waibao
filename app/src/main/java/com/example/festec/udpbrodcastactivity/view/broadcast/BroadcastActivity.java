@@ -10,21 +10,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.example.festec.udpbrodcastactivity.R;
-import com.example.festec.udpbrodcastactivity.module.SingleLocalSocket;
-import com.example.festec.udpbrodcastactivity.view.fragments.SendAudFragment;
-import com.example.festec.udpbrodcastactivity.view.fragments.SendPicFragment;
-import com.example.festec.udpbrodcastactivity.view.fragments.SendTextFragment;
+import com.example.festec.udpbrodcastactivity.view.fragments.SendBaseFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class BroadcastActivity extends AppCompatActivity
-        implements SendTextFragment.OnTextFragmentInteractionListener,
-        SendPicFragment.OnPicFragmentInteractionListener,
-        SendAudFragment.OnAudFragmentInteractionListener {
+        implements SendBaseFragment.OnBaseFragmentInteractionListener {
 
 
     private Toolbar toolbar;
@@ -32,7 +26,6 @@ public class BroadcastActivity extends AppCompatActivity
 
     private String broadcastType;
     private String broadcastLevel;
-    private String dataType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,23 +109,11 @@ public class BroadcastActivity extends AppCompatActivity
 //                Toast.makeText(BroadcastActivity.this,
 //                        parent.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
                 FragmentTransaction transaction = fragmentManager.beginTransaction();
-                switch (parent.getItemAtPosition(position).toString()) {
-                    case "文本":
-                        transaction.replace(R.id.fragment_layout,
-                                SendTextFragment.newInstance(broadcastType, broadcastLevel));
-                        transaction.commit();
-                        break;
-                    case "图片":
-                        transaction.replace(R.id.fragment_layout, new SendPicFragment());
-                        transaction.commit();
-                        break;
-                    case "音频":
-                        transaction.replace(R.id.fragment_layout, new SendAudFragment());
-                        transaction.commit();
-                        break;
-                    default:
-                        break;
-                }
+                transaction.replace(R.id.fragment_layout,
+                        SendBaseFragment.newInstance(broadcastType, broadcastLevel,
+                                parent.getItemAtPosition(position).toString()));
+                transaction.commit();
+
 
 
             }
@@ -143,18 +124,10 @@ public class BroadcastActivity extends AppCompatActivity
         });
     }
 
-    @Override
-    public void onAudFragmentInteraction(Uri uri) {
 
-    }
 
     @Override
-    public void onPicFragmentInteraction(Uri uri) {
-
-    }
-
-    @Override
-    public void onTextFragmentInteraction(Uri uri) {
+    public void onBaseFragmentInteraction(Uri uri) {
 
     }
 

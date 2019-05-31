@@ -18,12 +18,13 @@ import com.example.festec.udpbrodcastactivity.R;
 import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
-    private TreeMap<Integer, String> portMacMap;
+    private Map<Integer, String> portMacMap;
 
-    public PortAdapter(TreeMap<Integer, String> clients) {
+    public PortAdapter(Map<Integer, String> clients) {
         this.portMacMap = clients;
     }
 
@@ -41,7 +42,7 @@ public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         String mac = portMacMap.get(GlobalValues.portList.get(i));
-        if (mac == null || mac.length() == 0) {
+        if ("".equalsIgnoreCase(mac)) {
             viewHolder.tvOnline.setText("离线");
             viewHolder.imgIsOnline.setImageResource(R.drawable.ic_offline_icon2);
         } else {

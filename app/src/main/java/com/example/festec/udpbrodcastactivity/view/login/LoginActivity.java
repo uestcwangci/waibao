@@ -32,6 +32,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 public class LoginActivity extends AppCompatActivity {
@@ -166,7 +167,7 @@ public class LoginActivity extends AppCompatActivity {
         GlobalValues.localMac = getMacAddress();
         GlobalValues.tcpServerPort = 10041;
         GlobalValues.portList = new ArrayList<>();
-        GlobalValues.portMacMap = new TreeMap<>();
+        GlobalValues.portMacMap = new LinkedHashMap<>();
     }
 
     @Override

@@ -32,11 +32,9 @@ import java.util.TreeMap;
 
 public class DeviceChooseActivity extends AppCompatActivity {
     private static final String TAG = "waibao";
-    private CheckBox checkBox1, checkBox2, checkBox3, checkBox4, checkBox5;
     private FloatingActionButton nextBt;
     private Toolbar toolbar;
     private RecyclerView recyclerView;
-    private FloatingActionButton fab;
 
 
 
@@ -65,13 +63,8 @@ public class DeviceChooseActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.choose_recycle_view);
 //        recyclerView.addItemDecoration(new RecyclerViewDivider(this, LinearLayoutManager.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        List<Integer> clients = new ArrayList<>();
-        for (Map.Entry<Integer, String> entry : GlobalValues.portMacMap.entrySet()) {
-            if (!"".equals(entry.getValue())) {
-                clients.add(entry.getKey());
-            }
-        }
-        ChooseAdapter chooseAdapter = new ChooseAdapter(clients);
+
+        ChooseAdapter chooseAdapter = new ChooseAdapter(GlobalValues.portList);
         recyclerView.setAdapter(chooseAdapter);
 
 

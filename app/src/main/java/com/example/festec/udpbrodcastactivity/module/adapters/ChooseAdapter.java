@@ -38,7 +38,7 @@ public class ChooseAdapter extends RecyclerView.Adapter<ChooseAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        String text = "设备" + clients.get(i);
+        String text = "设备UDP监听端口：" + clients.get(i);
         viewHolder.checkBox.setText(text);
     }
 
