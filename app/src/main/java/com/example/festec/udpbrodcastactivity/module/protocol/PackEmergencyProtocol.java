@@ -1,6 +1,7 @@
 package com.example.festec.udpbrodcastactivity.module.protocol;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.festec.udpbrodcastactivity.module.message.HeatBeatMessage;
 import com.example.festec.udpbrodcastactivity.module.message.MP3Message;
@@ -26,13 +27,6 @@ public class PackEmergencyProtocol<T> {
     private Context context;
 
 
-    public PackEmergencyProtocol() {
-        emergencyProtocol = new EmergencyProtocol<>();
-        header = new EmergencyHeader();
-        body = new EmergencyBody<>();
-        emergencyProtocol.setHeader(header);
-        emergencyProtocol.setBody(body);
-    }
 
     public PackEmergencyProtocol(Context context) {
         this.context = context;
@@ -47,40 +41,41 @@ public class PackEmergencyProtocol<T> {
      * 注册、心跳包等发送给服务器端的打包
      */
     public EmergencyProtocol<T> packPackEmergencyProtocol(T t) {
-        //设置目的设备的数量
-        body.setDestinationCount((short) 1);
+        //设置目的设备的地址长度
+        body.setDestinationCount((short) 6);
         //设置目的设备逻辑地址
         List<byte[]> destinationList = new ArrayList<>();
-        byte[] destinationAddress = new byte[]{0x01, 0x03, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x03};
+        // 虚拟mac地址00:01:6C:06:A6:29
+        byte[] destinationAddress = new byte[]{0x01, 0x01, 0x6C, 0x06, (byte) 0xA6, 0x29};
         destinationList.add(destinationAddress);
         body.setDestinationAddressList(destinationList);
 
         if (t instanceof RegisterMessage) {
             //命令ID
-            body.setOrderID(new byte[]{0x00, 0x10});//注册
+            body.setOrderID((short) 0x0010);//注册
         }else if (t instanceof HeatBeatMessage) {
             //命令ID
-            body.setOrderID(new byte[]{0x00, (byte) 0x80});  //心跳包
+            body.setOrderID((short) 0x0080);  //心跳包
         } else if (t instanceof QueryMessage) {
             //命令ID
-            body.setOrderID(new byte[]{0x00, (byte) 0x20});  //查询
+            body.setOrderID((short) 0x0020);  //查询
         }else if (t instanceof SettingsMessage) {
-            body.setOrderID(new byte[]{0x00, (byte) 0x30});  //设置参数命令
+            body.setOrderID((short) 0x0030);  //设置参数命令
         } else if (t instanceof PictureMessage) {
-            body.setOrderID(new byte[]{0x00, (byte) 0x01});
+            body.setOrderID((short) 0x0001);
         } else if (t instanceof TextMessage) {
-            body.setOrderID(new byte[]{0x00, (byte) 0x01});
+            body.setOrderID((short) 0x0001);
         } else if (t instanceof MP3Message) {
-            body.setOrderID(new byte[]{0x00, (byte) 0x01});
+            body.setOrderID((short) 0x0001);
         } else if (t instanceof StopMessage) {
-            body.setOrderID(new byte[]{0x00, (byte) 0x02});
+            body.setOrderID((short) 0x0001);
         }
         //命令参数(包括命令参数长度与命令参数内容)
         body.setT(t);
         //消息头
         setHeaderMessage(t);
         byte[] packetBytes = ByteUtils.addBytes(header.getHeaderBytes(), body.getEmergencyBodyBytes());
-        System.out.println("发送的CRC32：" + CRC32Utils.encode(packetBytes));
+//        System.out.println("发送的CRC32：" + CRC32Utils.encode(packetBytes));
         emergencyProtocol.setCrc32(CRC32Utils.encode(packetBytes));
         return emergencyProtocol;
     }
@@ -107,6 +102,8 @@ public class PackEmergencyProtocol<T> {
             header.setPacketLength(24 + 2 + 12 * body.getDestinationCount() + 2 + 4 + ((QueryMessage) t).getOrderLength() + 4);
         } else if (t instanceof SettingsMessage) {
             header.setPacketLength(24 + 2 + 12 * body.getDestinationCount() + 2 + 4 + ((SettingsMessage) t).getOrderLength() + 4);
+        } else if (t instanceof TextMessage) {
+            header.setPacketLength(24 + 2 + body.getDestinationCount() + 2 + 2 + ((TextMessage) t).getOrderLength() + 4);
         }
     }
 }

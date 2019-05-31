@@ -17,7 +17,7 @@ public class SettingsMessage {
     public byte[] getSettingMessageBytes() {
         byte[] bytes;
         byte[] bytes1 = {settingCount};
-        bytes = ByteUtils.addBytes(ByteUtils.getBytes(orderLength), bytes1);
+        bytes = ByteUtils.addBytes(ByteUtils.intToByte(orderLength), bytes1);
         for (int i = 0; i < settingCount; i++) {
             bytes = ByteUtils.addBytes(bytes, settingsParams.get(i).getParamBytes());
         }

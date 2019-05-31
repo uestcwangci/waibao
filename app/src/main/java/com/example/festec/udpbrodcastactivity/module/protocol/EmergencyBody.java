@@ -1,8 +1,6 @@
 package com.example.festec.udpbrodcastactivity.module.protocol;
 
 import com.example.festec.udpbrodcastactivity.module.message.HeatBeatMessage;
-import com.example.festec.udpbrodcastactivity.module.message.MP3Message;
-import com.example.festec.udpbrodcastactivity.module.message.PictureMessage;
 import com.example.festec.udpbrodcastactivity.module.message.QueryMessage;
 import com.example.festec.udpbrodcastactivity.module.message.RegisterMessage;
 import com.example.festec.udpbrodcastactivity.module.message.SettingsMessage;
@@ -17,17 +15,17 @@ import java.util.List;
 public class EmergencyBody<T>{
     private short destinationCount; //2个字节
     private List<byte[]> destinationAddressList;
-    private byte[] orderID; //2个字节
+    private short orderID; //2个字节
 
     private T t;
 
     public byte[] getEmergencyBodyBytes() {
         byte[] bytes;
-        bytes = ByteUtils.getBytes(destinationCount);
+        bytes = ByteUtils.short2Byte(destinationCount);
         for (int i = 0; i < destinationAddressList.size(); i++){
             bytes = ByteUtils.addBytes(bytes, destinationAddressList.get(i));
         }
-        bytes = ByteUtils.addBytes(bytes, orderID);
+        bytes = ByteUtils.addBytes(bytes, ByteUtils.short2Byte(orderID));
         if (t instanceof AckUtils) {
             bytes = ByteUtils.addBytes(bytes, ((AckUtils) t).getAckUtilsBytes());
         }else if (t instanceof RegisterMessage) {   //注册
@@ -38,10 +36,10 @@ public class EmergencyBody<T>{
             bytes = ByteUtils.addBytes(bytes, ((QueryMessage) t).getQueryMessageBytes());
         } else if (t instanceof SettingsMessage) {  //设置参数
             bytes = ByteUtils.addBytes(bytes, ((SettingsMessage) t).getSettingMessageBytes());
+        } else if (t instanceof TextMessage) {      //文本
+            bytes = ByteUtils.addBytes(bytes, ((TextMessage) t).getTextMessageBytes());
         }
-//        else if (t instanceof TextMessage) {      //文本
-//            bytes = ByteUtils.addBytes(bytes, ((TextMessage) t).getTextMessageBytes());
-//        } else if (t instanceof PictureMessage) {   //图片
+//        else if (t instanceof PictureMessage) {   //图片
 //            bytes = ByteUtils.addBytes(bytes, ((PictureMessage) t).getPictureMessageBytes());
 //        } else if (t instanceof MP3Message) {   //音频
 //            bytes = ByteUtils.addBytes(bytes, ((MP3Message) t).getMP3MessageBytes());
@@ -73,11 +71,11 @@ public class EmergencyBody<T>{
         this.destinationAddressList = destinationAddressList;
     }
 
-    public byte[] getOrderID() {
+    public short getOrderID() {
         return orderID;
     }
 
-    public void setOrderID(byte[] orderID) {
+    public void setOrderID(short orderID) {
         this.orderID = orderID;
     }
 
@@ -86,7 +84,7 @@ public class EmergencyBody<T>{
         return "EmergencyBody{" +
                 "destinationCount=" + destinationCount +
                 ", destinationAddressList=" + destinationAddressList +
-                ", orderID=" + ByteUtils.bytesToHexString(orderID) +
+                ", orderID=" + orderID +
                 ", t=" + t +
                 '}';
     }

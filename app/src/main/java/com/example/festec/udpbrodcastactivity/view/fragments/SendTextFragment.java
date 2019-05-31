@@ -2,13 +2,17 @@ package com.example.festec.udpbrodcastactivity.view.fragments;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.example.festec.udpbrodcastactivity.R;
@@ -16,6 +20,11 @@ import com.example.festec.udpbrodcastactivity.module.message.TextMessage;
 import com.example.festec.udpbrodcastactivity.module.protocol.EmergencyProtocol;
 import com.example.festec.udpbrodcastactivity.module.protocol.PackEmergencyProtocol;
 import com.example.festec.udpbrodcastactivity.module.udp.UdpServer;
+import com.example.festec.udpbrodcastactivity.module.utils.ByteUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,12 +39,16 @@ public class SendTextFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "waibao";
 
 
     private EditText editText;
     private ToggleButton toggleButton;
     private UdpServer udpServer;
+
     private EmergencyProtocol<TextMessage> emergencyProtocol;
+    private List<Integer> clientList;
+    private TextMessage textMessage;
 
     // TODO: Rename and change types of parameters
     private String broadcastType;
@@ -73,9 +86,13 @@ public class SendTextFragment extends Fragment {
             broadcastType = getArguments().getString(ARG_PARAM1);
             broadcastLevel = getArguments().getString(ARG_PARAM2);
         }
-        TextMessage textMessage = new TextMessage();
-        PackEmergencyProtocol<TextMessage> packEmergencyProtocol = new PackEmergencyProtocol<>(getContext());
-        emergencyProtocol = packEmergencyProtocol.packPackEmergencyProtocol();
+        clientList = new ArrayList<>();
+        clientList.add(6787);
+        clientList.add(6788);
+        clientList.add(6789);
+        clientList.add(6790);
+        clientList.add(6791);
+        textMessage = new TextMessage(broadcastType, broadcastLevel);
     }
 
     @Override
@@ -85,12 +102,25 @@ public class SendTextFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_send_text, container, false);
         editText = view.findViewById(R.id.edit_send_text);
         toggleButton = view.findViewById(R.id.bt_send_text);
-        udpServer = new UdpServer();
         toggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    udpServer.start();
+                    if (!TextUtils.isEmpty(editText.getText())) {
+                        byte[] data = editText.getText().toString().getBytes();
+                        textMessage.setDataLength(data.length);
+                        textMessage.setData(data);
+
+                        PackEmergencyProtocol<TextMessage> packEmergencyProtocol = new PackEmergencyProtocol<>(getContext());
+                        emergencyProtocol = packEmergencyProtocol.packPackEmergencyProtocol(textMessage);
+                        byte[] sendBytes = emergencyProtocol.getEmergencyProtocolByte();
+                        Log.d(TAG, "send:" + emergencyProtocol.toString());
+                        Log.d(TAG, "data length: " + sendBytes.length);
+                        new UdpTask().execute(sendBytes);
+                    } else {
+                        Toast.makeText(getContext(), "发送不能为空", Toast.LENGTH_SHORT).show();
+                        toggleButton.setChecked(false);
+                    }
                 } else {
                     udpServer.udpServerClose();
                 }
@@ -137,4 +167,21 @@ public class SendTextFragment extends Fragment {
         // TODO: Update argument type and name
         void onTextFragmentInteraction(Uri uri);
     }
+
+    class UdpTask extends AsyncTask<byte[], Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            // 传入要广播的端口list
+            udpServer = new UdpServer(clientList);
+        }
+
+        @Override
+        protected Void doInBackground(byte[]... bytes) {
+            Log.d(TAG, "doInBackground: " + bytes[0].length);
+            Log.d(TAG, "doInBackground: " + Arrays.toString(bytes[0]));
+            udpServer.start(bytes[0]);
+            return null;
+        }
+    }
+
 }

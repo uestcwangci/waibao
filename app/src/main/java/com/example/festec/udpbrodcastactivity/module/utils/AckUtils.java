@@ -8,7 +8,7 @@ public class AckUtils {
     public byte[] getAckUtilsBytes() {
         byte[] bytes;
         byte[] bytes1 = {resultCode};
-        bytes = ByteUtils.addBytes(bytes1, ByteUtils.getBytes(resultLength));
+        bytes = ByteUtils.addBytes(bytes1, ByteUtils.intToByte(resultLength));
         bytes = ByteUtils.addBytes(bytes, resultContent.getBytes());
         return bytes;
     }

@@ -9,14 +9,43 @@ public class ByteUtils {
         return data3;
     }
 
+    public static byte[] hexStringToBytes(String hexString) {
+        if (hexString == null || hexString.equals("")) {
+            return null;
+        }
+        hexString = hexString.toUpperCase();
+        int length = hexString.length() / 2;
+        char[] hexChars = hexString.toCharArray();
+        byte[] d = new byte[length];
+        for (int i = 0; i < length; i++) {
+            int pos = i * 2;
+            d[i] = (byte) (charToByte(hexChars[pos]) << 4 | charToByte(hexChars[pos + 1]));
+
+        }
+        return d;
+    }
+
+    private static byte charToByte(char c) {
+        return (byte) "0123456789ABCDEF".indexOf(c);
+    }
+
+
     //将整数转化为字节数组,注意转型
-    public static byte[] getBytes(int data1){
+    public static byte[] intToByte(int data1){
         byte[] data2 = new byte[4];
         data2[3] = (byte) (data1 & 0xFF);
         data2[2] = (byte) (data1 >> 8 & 0xFF);
         data2[1] = (byte) (data1 >> 16 & 0xFF);
         data2[0] = (byte) (data1 >> 24 & 0xFF);
         return data2;
+    }
+
+    // 将4个字节的byte转为int
+    public static int byteToInt(byte[] b) {
+        return   b[3] & 0xFF |
+                (b[2] & 0xFF) << 8 |
+                (b[1] & 0xFF) << 16 |
+                (b[0] & 0xFF) << 24;
     }
 
     //将数组转化为十六进制
@@ -35,5 +64,25 @@ public class ByteUtils {
         }
         return stringBuilder.toString();
     }
+
+    public static byte[] short2Byte(short x) {
+        byte high = (byte) (0x00FF & (x>>8));
+        byte low = (byte) (0x00FF & x);
+        byte[] bytes = new byte[2];
+        bytes[0] = high;
+        bytes[1] = low;
+        return bytes;
+    }
+
+
+
+    public static short byte2short(byte[] bytes) {
+        byte high = bytes[0];
+        byte low = bytes[1];
+        return (short) (((high & 0x00FF) << 8) | (0x00FF & low));
+    }
+
+
+
 }
 

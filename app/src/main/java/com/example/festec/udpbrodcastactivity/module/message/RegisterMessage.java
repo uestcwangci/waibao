@@ -20,8 +20,8 @@ public class RegisterMessage {
         byte[] bytes1 = {deviceType};
         byte[] bytes2 = {deviceMacAddressLength};
         byte[] bytes3 = {usernameLength};
-        bytes = ByteUtils.addBytes(ByteUtils.getBytes(orderLength),bytes1);
-        bytes = ByteUtils.addBytes(bytes,ByteUtils.getBytes(udpPort));
+        bytes = ByteUtils.addBytes(ByteUtils.intToByte(orderLength),bytes1);
+        bytes = ByteUtils.addBytes(bytes,ByteUtils.intToByte(udpPort));
         bytes = ByteUtils.addBytes(bytes, bytes2);
         bytes = ByteUtils.addBytes(bytes, deviceMacAddress);
         bytes = ByteUtils.addBytes(bytes, bytes3);

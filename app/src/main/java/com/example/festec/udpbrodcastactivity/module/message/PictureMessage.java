@@ -1,5 +1,5 @@
 package com.example.festec.udpbrodcastactivity.module.message;
 
-public class PictureMessage {
+public class PictureMessage extends BaseMessage{
 
 }

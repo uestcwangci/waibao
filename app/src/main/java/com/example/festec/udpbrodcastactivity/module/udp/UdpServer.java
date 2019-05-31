@@ -1,5 +1,7 @@
 package com.example.festec.udpbrodcastactivity.module.udp;
 
+import android.util.Log;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -8,40 +10,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UdpServer {
+    private static final String TAG = "waibao";
+
     private DatagramSocket ds = null;
 
     private boolean isUdpRun = true;
     private String ip = "255.255.255.255";//广播地址
-    private static List<Integer> portList = new ArrayList<>(); //指定广播接收数据端口
+    private List<Integer> portList; //指定广播接收数据端口
 
-    public UdpServer() {
-        initList();
-    }
 
-    //    public static void main(String[] args) {
-//        initList();
-//        UdpServer server = new UdpServer();
-//        server.start();
-//    }
-
-    private static void initList() {
-        portList.add(6787);
-        portList.add(6788);
-        portList.add(6789);
-        portList.add(6790);
-        portList.add(6791);
+    public UdpServer(List<Integer> clients) {
+        this.portList = clients;
     }
 
 
-    public void start(){
+
+
+    public void start(final byte[] data){
         try {
-            System.out.println("UDP 广播服务器启动");
             ds = new DatagramSocket();
             for (final Integer udpPort : portList) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        runServer(udpPort);
+                        runServer(udpPort, data);
                     }
                 }).start();
             }
@@ -51,18 +43,17 @@ public class UdpServer {
 
     }
 
-    private void runServer(int udpPort){
+    private void runServer(int udpPort, byte[] data) {
         try {
-            while(isUdpRun){
-                String sendMessage = "message from UDP server,";
+            while (isUdpRun) {
                 InetAddress adds = InetAddress.getByName(ip);
-                DatagramPacket dp = new DatagramPacket(sendMessage.getBytes(),sendMessage.length(), adds, udpPort);
+                DatagramPacket dp = new DatagramPacket(data, data.length, adds, udpPort);
                 ds.send(dp);
                 Thread.sleep(2000);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("UdpTestServer run Exception: " + e.toString());
+            Log.d(TAG, "UdpTestServer run Exception: " + e.toString());
         }
     }
 

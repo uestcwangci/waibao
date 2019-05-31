@@ -17,9 +17,9 @@ public class EmergencyHeader{
         byte[] bytes;
         bytes = ByteUtils.addBytes(flag, version);
         bytes = ByteUtils.addBytes(bytes, sourceAddress);
-        bytes = ByteUtils.addBytes(bytes, ByteUtils.getBytes(messageId));
-        bytes = ByteUtils.addBytes(bytes, ByteUtils.getBytes(packetType));
-        bytes = ByteUtils.addBytes(bytes, ByteUtils.getBytes(packetLength));
+        bytes = ByteUtils.addBytes(bytes, ByteUtils.short2Byte(messageId));
+        bytes = ByteUtils.addBytes(bytes, ByteUtils.short2Byte(packetType));
+        bytes = ByteUtils.addBytes(bytes, ByteUtils.intToByte(packetLength));
         return bytes;
     }
 

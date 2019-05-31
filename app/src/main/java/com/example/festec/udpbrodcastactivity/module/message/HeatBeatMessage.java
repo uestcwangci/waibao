@@ -26,7 +26,7 @@ public class HeatBeatMessage {
 
     public byte[] getHeartBeatUtilsBytes() {
         byte[] bytes1 = {status};
-        byte[] bytes = ByteUtils.addBytes(ByteUtils.getBytes(orderLength), bytes1);
+        byte[] bytes = ByteUtils.addBytes(ByteUtils.intToByte(orderLength), bytes1);
         return bytes;
     }
 

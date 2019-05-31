@@ -15,7 +15,7 @@ public class QueryMessage {
 
     public byte[] getQueryMessageBytes() {
         byte[] bytes1 = {queryCount};
-        byte[] bytes = ByteUtils.addBytes(ByteUtils.getBytes(orderLength), bytes1);
+        byte[] bytes = ByteUtils.addBytes(ByteUtils.intToByte(orderLength), bytes1);
         bytes = ByteUtils.addBytes(bytes, queryParams);
         return bytes;
     }

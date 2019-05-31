@@ -17,6 +17,7 @@ public class ResourceEncodeUtils {
     private static DBOpenHelper dbOpenHelper;  //定义DBOpenHelper,用于与数据库连接
 
     public static byte[] getSourceAddress(Context context) {
+        return new byte[]{0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C};
 //        //先得到省、市、县地址(从PreferShared中获取)
 //        String deviceAddress = PrefUtils.getString(context, "deviceAddress", "");
 //        //根据地址获得资源级别识别码(1中央级，2省级，3市级，4县级，5乡级，6村级)，1个字节
@@ -58,6 +59,6 @@ public class ResourceEncodeUtils {
 //            System.out.println("sourceAddress:" + Arrays.toString(sourceAddress));
 //            return sourceAddress;
 //        }
-        return null;
+//        return null;
     }
 }

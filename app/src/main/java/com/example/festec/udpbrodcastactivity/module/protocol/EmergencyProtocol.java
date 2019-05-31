@@ -34,7 +34,7 @@ public class EmergencyProtocol<T> {
 
     public byte[] getEmergencyProtocolByte() {
         byte[] bytes = ByteUtils.addBytes(header.getHeaderBytes(), body.getEmergencyBodyBytes());
-        bytes = ByteUtils.addBytes(bytes, ByteUtils.getBytes(crc32));
+        bytes = ByteUtils.addBytes(bytes, ByteUtils.intToByte(crc32));
         return bytes;
     }
 
