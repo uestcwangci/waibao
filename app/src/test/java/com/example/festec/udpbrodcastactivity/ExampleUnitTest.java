@@ -1,5 +1,7 @@
 package com.example.festec.udpbrodcastactivity;
 
+import com.example.festec.udpbrodcastactivity.module.utils.ByteUtils;
+
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -19,8 +21,7 @@ public class ExampleUnitTest {
 
     @Test
     public void testUdp() {
-        byte[] bytes = new byte[100];
-        bytes[0] = (byte) 0xfe;
-        System.out.println(Arrays.toString("1".getBytes()));
+        String mac = "1D:2F:33:01:FE:CD";
+        System.out.println(Arrays.toString(ByteUtils.macToByte(mac)));
     }
 }

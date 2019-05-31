@@ -4,8 +4,8 @@ package com.example.festec.udpbrodcastactivity.module.message;
 public class TextMessage extends BaseMessage{
 
 
-    public TextMessage(String broadcastType, String broadcastLevel) {
-        super(broadcastType, broadcastLevel);
+    public TextMessage(String broadcastType, String broadcastLevel, String dataType) {
+        super(broadcastType, broadcastLevel, dataType);
     }
 
     @Override

@@ -5,6 +5,10 @@ import java.util.Arrays;
 public class MP3Message extends BaseMessage{
 
 
+    public MP3Message(String broadcastType, String broadcastLevel, String dataType) {
+        super(broadcastType, broadcastLevel, dataType);
+    }
+
     @Override
     public String toString() {
         return "MP3Message{" +

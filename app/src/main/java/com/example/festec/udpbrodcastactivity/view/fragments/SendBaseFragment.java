@@ -87,7 +87,7 @@ public class SendBaseFragment extends Fragment {
             broadcastLevel = getArguments().getString(ARG_PARAM2);
             dataType = getArguments().getString(ARG_PARAM3);
         }
-        baseMessage = new BaseMessage(broadcastType, broadcastLevel);
+        baseMessage = new BaseMessage(broadcastType, broadcastLevel, broadcastType);
         udpServer = new UdpServer(GlobalValues.portList);
     }
 

@@ -84,12 +84,10 @@ public class ByteUtils {
 
 
     public static byte[] macToByte(String mac) {
-        byte[] bytes;
+        byte[] bytes = new byte[6];
         String[] macs = mac.split(":");
-        bytes = (macs[0] + macs[1]).getBytes();
-        for (int i = 2; i < macs.length; i += 2) {
-            String temp = macs[i] + macs[i + 1];
-            bytes = addBytes(bytes, temp.getBytes());
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = hexStringToBytes(macs[i])[0];
         }
         return bytes;
     }

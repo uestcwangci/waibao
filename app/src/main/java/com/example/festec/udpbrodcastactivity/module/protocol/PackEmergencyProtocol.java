@@ -1,22 +1,15 @@
 package com.example.festec.udpbrodcastactivity.module.protocol;
 
-import android.content.Context;
-import android.util.Log;
 
 import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 import com.example.festec.udpbrodcastactivity.module.message.BaseMessage;
 import com.example.festec.udpbrodcastactivity.module.message.HeatBeatMessage;
-import com.example.festec.udpbrodcastactivity.module.message.MP3Message;
-import com.example.festec.udpbrodcastactivity.module.message.PictureMessage;
 import com.example.festec.udpbrodcastactivity.module.message.QueryMessage;
 import com.example.festec.udpbrodcastactivity.module.message.RegisterMessage;
 import com.example.festec.udpbrodcastactivity.module.message.SettingsMessage;
 import com.example.festec.udpbrodcastactivity.module.message.StopMessage;
-import com.example.festec.udpbrodcastactivity.module.message.TextMessage;
 import com.example.festec.udpbrodcastactivity.module.utils.ByteUtils;
 import com.example.festec.udpbrodcastactivity.module.utils.CRC32Utils;
-import com.example.festec.udpbrodcastactivity.module.utils.PrefUtils;
-import com.example.festec.udpbrodcastactivity.module.utils.ResourceEncodeUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,13 +54,9 @@ public class PackEmergencyProtocol<T> {
             body.setOrderID((short) 0x0020);  //查询
         }else if (t instanceof SettingsMessage) {
             body.setOrderID((short) 0x0030);  //设置参数命令
-        } else if (t instanceof PictureMessage) {
+        } else if (t instanceof BaseMessage) {
             body.setOrderID((short) 0x0001);
-        } else if (t instanceof TextMessage) {
-            body.setOrderID((short) 0x0001);
-        } else if (t instanceof MP3Message) {
-            body.setOrderID((short) 0x0001);
-        } else if (t instanceof StopMessage) {
+        }  else if (t instanceof StopMessage) {
             body.setOrderID((short) 0x0001);
         }
         //命令参数(包括命令参数长度与命令参数内容)

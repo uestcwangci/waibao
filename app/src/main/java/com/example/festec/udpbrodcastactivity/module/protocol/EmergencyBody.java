@@ -40,11 +40,7 @@ public class EmergencyBody<T>{
         } else if (t instanceof BaseMessage) {      //文本
             bytes = ByteUtils.addBytes(bytes, ((BaseMessage) t).getBaseMessageBytes());
         }
-//        else if (t instanceof PictureMessage) {   //图片
-//            bytes = ByteUtils.addBytes(bytes, ((PictureMessage) t).getPictureMessageBytes());
-//        } else if (t instanceof MP3Message) {   //音频
-//            bytes = ByteUtils.addBytes(bytes, ((MP3Message) t).getMP3MessageBytes());
-//        }
+
         return bytes;
     }
 

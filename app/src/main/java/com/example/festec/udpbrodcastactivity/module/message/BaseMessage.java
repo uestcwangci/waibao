@@ -16,7 +16,7 @@ public class BaseMessage {
     protected int dataLength; // 数据长度
     protected byte[] data; // 内容
 
-    public BaseMessage(String broadcastType, String broadcastLevel) {
+    public BaseMessage(String broadcastType, String broadcastLevel, String dataType) {
         this.orderLength = 7;
         switch (broadcastType) {
             case "应急演练-发布系统演练":
@@ -53,7 +53,22 @@ public class BaseMessage {
             default:
                 break;
         }
-        this.dataType = 0x03;
+        switch (dataType) {
+            case "文本":
+                this.dataType = 0x03;
+                break;
+            case "图片":
+                this.dataType = 0x04;
+                break;
+            case "音频":
+                this.dataType = 0x01;
+                break;
+            case "视频":
+                this.dataType = 0x02;
+                break;
+            default:
+                break;
+        }
     }
 
 

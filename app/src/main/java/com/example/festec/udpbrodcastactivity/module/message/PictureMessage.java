@@ -5,6 +5,10 @@ import java.util.Arrays;
 public class PictureMessage extends BaseMessage {
 
 
+    public PictureMessage(String broadcastType, String broadcastLevel, String dataType) {
+        super(broadcastType, broadcastLevel, dataType);
+    }
+
     @Override
     public String toString() {
         return "PictureMessage{" +

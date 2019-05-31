@@ -114,8 +114,6 @@ public class BroadcastActivity extends AppCompatActivity
                                 parent.getItemAtPosition(position).toString()));
                 transaction.commit();
 
-
-
             }
 
             @Override
