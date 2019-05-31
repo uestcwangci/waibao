@@ -1,5 +1,6 @@
 package com.example.festec.udpbrodcastactivity.module.protocol;
 
+import com.example.festec.udpbrodcastactivity.module.message.BaseMessage;
 import com.example.festec.udpbrodcastactivity.module.message.HeatBeatMessage;
 import com.example.festec.udpbrodcastactivity.module.message.QueryMessage;
 import com.example.festec.udpbrodcastactivity.module.message.RegisterMessage;
@@ -36,8 +37,8 @@ public class EmergencyBody<T>{
             bytes = ByteUtils.addBytes(bytes, ((QueryMessage) t).getQueryMessageBytes());
         } else if (t instanceof SettingsMessage) {  //设置参数
             bytes = ByteUtils.addBytes(bytes, ((SettingsMessage) t).getSettingMessageBytes());
-        } else if (t instanceof TextMessage) {      //文本
-            bytes = ByteUtils.addBytes(bytes, ((TextMessage) t).getTextMessageBytes());
+        } else if (t instanceof BaseMessage) {      //文本
+            bytes = ByteUtils.addBytes(bytes, ((BaseMessage) t).getBaseMessageBytes());
         }
 //        else if (t instanceof PictureMessage) {   //图片
 //            bytes = ByteUtils.addBytes(bytes, ((PictureMessage) t).getPictureMessageBytes());

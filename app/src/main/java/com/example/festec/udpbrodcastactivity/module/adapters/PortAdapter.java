@@ -15,15 +15,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.festec.udpbrodcastactivity.R;
+import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 
 import java.util.List;
 import java.util.TreeMap;
 
 public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
-    private TreeMap<String, Boolean> virtualClients;
+    private TreeMap<Integer, String> portMacMap;
 
-    public PortAdapter(TreeMap<String, Boolean> clients) {
-        this.virtualClients = clients;
+    public PortAdapter(TreeMap<Integer, String> clients) {
+        this.portMacMap = clients;
     }
 
 
@@ -39,21 +40,21 @@ public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-
-        boolean isOnline = virtualClients.get(String.valueOf(i + 1));
-        if (isOnline) {
-            viewHolder.tvOnline.setText("在线");
-            viewHolder.imgIsOnline.setImageResource(R.drawable.ic_online_icon2);
-        } else {
+        String mac = portMacMap.get(GlobalValues.portList.get(i));
+        if (mac == null || mac.length() == 0) {
             viewHolder.tvOnline.setText("离线");
             viewHolder.imgIsOnline.setImageResource(R.drawable.ic_offline_icon2);
+        } else {
+            viewHolder.tvOnline.setText("在线");
+            viewHolder.imgIsOnline.setImageResource(R.drawable.ic_online_icon2);
+
         }
         viewHolder.tvPosition.setText("四川省成都市顺江小区");
     }
 
     @Override
     public int getItemCount() {
-        return virtualClients.size();
+        return portMacMap.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

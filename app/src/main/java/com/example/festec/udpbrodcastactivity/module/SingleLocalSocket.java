@@ -1,5 +1,7 @@
 package com.example.festec.udpbrodcastactivity.module;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -36,17 +38,19 @@ public class SingleLocalSocket {
         return socket;
     }
 
-    public void setSocket(Socket socket) {
+    public void initSocket(String ip, int port) {
         try {
-            this.socket = socket;
-            this.is = socket.getInputStream();
-            this.os = socket.getOutputStream();
-            this.br = new BufferedReader(new InputStreamReader(is));
-            this.bw = new BufferedWriter(new OutputStreamWriter(os));
+            socket = new Socket(ip, port);
+            is = socket.getInputStream();
+            os = socket.getOutputStream();
+            br = new BufferedReader(new InputStreamReader(is));
+            bw = new BufferedWriter(new OutputStreamWriter(os));
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
+
 
     public InputStream getIs() {
         return is;
@@ -81,25 +85,32 @@ public class SingleLocalSocket {
     }
 
     public void disconnect() {
-        try {
-            if (is != null) {
-                is.close();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(SingleLocalSocket.getInstance().getOs()));
+                    bw.write("quit");
+                    bw.newLine();
+                    bw.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        if (is != null) {
+                            is.close();
+                        }
+                        if (os != null) {
+                            os.close();
+                        }
+                        if (socket != null) {
+                            socket.close();
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-            if (os != null) {
-                os.close();
-            }
-            if (br != null) {
-                br.close();
-            }
-            if (bw != null) {
-                bw.close();
-            }
-            if (socket != null) {
-                socket.close();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 }

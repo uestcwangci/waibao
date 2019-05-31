@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.festec.udpbrodcastactivity.R;
+import com.example.festec.udpbrodcastactivity.module.SingleLocalSocket;
 import com.example.festec.udpbrodcastactivity.view.fragments.SendAudFragment;
 import com.example.festec.udpbrodcastactivity.view.fragments.SendPicFragment;
 import com.example.festec.udpbrodcastactivity.view.fragments.SendTextFragment;
@@ -171,4 +172,8 @@ public class BroadcastActivity extends AppCompatActivity
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

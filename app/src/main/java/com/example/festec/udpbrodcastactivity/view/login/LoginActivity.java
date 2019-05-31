@@ -22,13 +22,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.festec.udpbrodcastactivity.R;
+import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 import com.example.festec.udpbrodcastactivity.module.utils.PermissionUtil;
 import com.example.festec.udpbrodcastactivity.view.main.MainActivity;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.TreeMap;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -52,12 +56,16 @@ public class LoginActivity extends AppCompatActivity {
 
         PermissionUtil.getInstance().chekPermissions(this, permissions, permissionsResult);
 
+
+        initGlobalValues();
+
+
         final EditText usernameEditText = findViewById(R.id.username);
         final EditText ipAddEditText = findViewById(R.id.ip_add);
         final Button loginButton = findViewById(R.id.login);
         final Button logoutButton = findViewById(R.id.logout);
 
-        logoutButton.setVisibility(View.GONE);
+//        logoutButton.setVisibility(View.GONE);
 //        final ProgressBar loadingProgressBar = findViewById(R.id.loading);
 
         dialog = new ProgressDialog(LoginActivity.this);
@@ -98,7 +106,6 @@ public class LoginActivity extends AppCompatActivity {
                 setResult(Activity.RESULT_OK);
 
                 //Complete and destroy login activity once successful
-                finish();
             }
         });
 
@@ -129,8 +136,7 @@ public class LoginActivity extends AppCompatActivity {
 //                    loadingProgressBar.setVisibility(View.VISIBLE);
                     dialog.show();
                     loginViewModel.login(usernameEditText.getText().toString(),
-                            ipAddEditText.getText().toString().trim(),
-                            getMacAddress());
+                            ipAddEditText.getText().toString().trim());
 
                 }
                 return false;
@@ -143,18 +149,29 @@ public class LoginActivity extends AppCompatActivity {
 //                loadingProgressBar.setVisibility(View.VISIBLE);
                 dialog.show();
                 loginViewModel.login(usernameEditText.getText().toString(),
-                        ipAddEditText.getText().toString().trim(),
-                        getMacAddress());
+                        ipAddEditText.getText().toString().trim());
             }
         });
 
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                loginViewModel.logout();
+                loginViewModel.logout(LoginActivity.this);
             }
         });
 
+    }
+
+    private void initGlobalValues() {
+        GlobalValues.localMac = getMacAddress();
+        GlobalValues.tcpServerPort = 10041;
+        GlobalValues.portList = new ArrayList<>();
+        GlobalValues.portMacMap = new TreeMap<>();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     /**

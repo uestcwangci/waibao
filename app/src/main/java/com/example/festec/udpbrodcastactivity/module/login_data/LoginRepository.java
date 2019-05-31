@@ -42,14 +42,14 @@ public class LoginRepository {
         this.user = user;
     }
 
-    public Result<LoggedInUser> login(String username, String ip, String mac) {
+    public Result<LoggedInUser> login(String username, String ip) {
 
         // handle login
-        Result<LoggedInUser> result = dataSource.login(username, ip, mac);
+        Result<LoggedInUser> result = dataSource.login(username, ip);
         // 登陆成功将登录信息存至本地
-//        if (result instanceof Result.Success) {
-//            setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
-//        }
+        if (result instanceof Result.Success) {
+            setLoggedInUser(((Result.Success<LoggedInUser>) result).getData());
+        }
         return result;
     }
 }

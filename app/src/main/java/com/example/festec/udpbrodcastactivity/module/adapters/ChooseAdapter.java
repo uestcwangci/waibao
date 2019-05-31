@@ -19,9 +19,9 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class ChooseAdapter extends RecyclerView.Adapter<ChooseAdapter.ViewHolder> {
-    private List<String> clients;
+    private List<Integer> clients;
 
-    public ChooseAdapter(List<String> clients) {
+    public ChooseAdapter(List<Integer> clients) {
         this.clients = clients;
     }
 

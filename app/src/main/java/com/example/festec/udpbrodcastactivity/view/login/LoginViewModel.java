@@ -3,6 +3,8 @@ package com.example.festec.udpbrodcastactivity.view.login;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.content.Context;
+import android.widget.Toast;
 
 import com.example.festec.udpbrodcastactivity.module.login_data.LoginRepository;
 import com.example.festec.udpbrodcastactivity.module.login_data.Result;
@@ -35,11 +37,10 @@ public class LoginViewModel extends ViewModel {
      *
      * @param username 用户名
      * @param ipAdd    ip地址
-     * @param mac      本机mac地址
      */
-    public void login(String username, String ipAdd, String mac) {
+    public void login(String username, String ipAdd) {
 
-        Result<LoggedInUser> result = loginRepository.login(username, ipAdd, mac);
+        Result<LoggedInUser> result = loginRepository.login(username, ipAdd);
 
         if (result instanceof Result.Success) {
             LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
@@ -49,9 +50,11 @@ public class LoginViewModel extends ViewModel {
         }
     }
 
-    public void logout() {
+    public void logout(Context context) {
         if (loginRepository.isLoggedIn()) {
             loginRepository.logout();
+        } else {
+            Toast.makeText(context, "未登录", Toast.LENGTH_SHORT).show();
         }
     }
 

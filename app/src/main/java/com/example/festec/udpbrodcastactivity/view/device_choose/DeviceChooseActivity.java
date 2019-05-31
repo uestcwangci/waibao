@@ -13,6 +13,8 @@ import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
 import com.example.festec.udpbrodcastactivity.R;
+import com.example.festec.udpbrodcastactivity.module.GlobalValues;
+import com.example.festec.udpbrodcastactivity.module.SingleLocalSocket;
 import com.example.festec.udpbrodcastactivity.module.adapters.ChooseAdapter;
 import com.example.festec.udpbrodcastactivity.view.broadcast.BroadcastActivity;
 import com.example.festec.udpbrodcastactivity.view.divider.RecyclerViewDivider;
@@ -37,30 +39,15 @@ public class DeviceChooseActivity extends AppCompatActivity {
     private FloatingActionButton fab;
 
 
-    private TreeMap<String, Boolean> virtualClients = new TreeMap<>();
-    private Set<String> virtualSet = new HashSet<>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_choose);
-        initSet();
-        Intent intent = getIntent();
-        for (String name : virtualSet) {
-            virtualClients.put(name, intent.getBooleanExtra(name, false));
-        }
-        Log.d(TAG, virtualClients.toString());
         initUI();
     }
 
-    private void initSet() {
-        virtualSet.add("1");
-        virtualSet.add("2");
-        virtualSet.add("3");
-        virtualSet.add("4");
-        virtualSet.add("5");
-    }
 
     private void initUI() {
         ButtonListener buttonListener = new ButtonListener();
@@ -78,9 +65,9 @@ public class DeviceChooseActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.choose_recycle_view);
 //        recyclerView.addItemDecoration(new RecyclerViewDivider(this, LinearLayoutManager.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        List<String> clients = new ArrayList<>();
-        for (Map.Entry<String, Boolean> entry : virtualClients.entrySet()) {
-            if (entry.getValue()) {
+        List<Integer> clients = new ArrayList<>();
+        for (Map.Entry<Integer, String> entry : GlobalValues.portMacMap.entrySet()) {
+            if (!"".equals(entry.getValue())) {
                 clients.add(entry.getKey());
             }
         }
@@ -106,5 +93,8 @@ public class DeviceChooseActivity extends AppCompatActivity {
         }
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

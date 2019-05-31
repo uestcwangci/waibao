@@ -16,11 +16,8 @@ public abstract class BaseMessage {
     protected int dataLength; // 数据长度
     protected byte[] data; // 内容
 
-    public BaseMessage() {
-    }
 
-
-    public byte[] getTextMessageBytes() {
+    public byte[] getBaseMessageBytes() {
         byte[] bytes = ByteUtils.short2Byte(orderLength);
         byte[] bytes1 = {broadcastType};
         byte[] bytes2 = {level};

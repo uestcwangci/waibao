@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 
 import com.example.festec.udpbrodcastactivity.R;
+import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 import com.example.festec.udpbrodcastactivity.module.SingleLocalSocket;
 import com.example.festec.udpbrodcastactivity.module.adapters.PortAdapter;
 import com.example.festec.udpbrodcastactivity.view.device_choose.DeviceChooseActivity;
@@ -26,20 +27,12 @@ import com.example.festec.udpbrodcastactivity.view.device_choose.DeviceChooseAct
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity {
     private static final int INIT_MAP_DONE = 69;
     private static final String TAG = "waibao";
     private SingleLocalSocket singleLocalSocket;
     private PortAdapter adapter;
-
-
-    private TreeMap<String, Boolean> virtualClients = new TreeMap<>();
-    private Set<String> virtualSet = new HashSet<>();
 
 
     //UI
@@ -54,20 +47,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        initSet();
-        adapter = new PortAdapter(virtualClients);
+        adapter = new PortAdapter(GlobalValues.portMacMap);
         initUI();
         // initSocket
         singleLocalSocket = SingleLocalSocket.getInstance();
     }
 
-    private void initSet() {
-        virtualSet.add("1");
-        virtualSet.add("2");
-        virtualSet.add("3");
-        virtualSet.add("4");
-        virtualSet.add("5");
-    }
 
     @Override
     protected void onPostResume() {
@@ -127,11 +112,6 @@ public class MainActivity extends AppCompatActivity {
             switch (v.getId()){
                 case R.id.btn_start:
                     Intent intent = new Intent(MainActivity.this, DeviceChooseActivity.class);
-                    for (Map.Entry<String, Boolean> entry : virtualClients.entrySet()) {
-                        if (virtualSet.contains(entry.getKey())) {
-                            intent.putExtra(entry.getKey(), entry.getValue());
-                        }
-                    }
                     startActivity(intent);
                     break;
                 default:
@@ -147,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 try {
-                    Log.d(TAG, "Thread1");
                     BufferedWriter bw = singleLocalSocket.getBw();
                     bw.write("virtualMap");
                     bw.newLine();
@@ -163,17 +142,16 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     thread1.join();
-                    Log.d(TAG, "Thread2");
                     BufferedReader br = singleLocalSocket.getBr();
                     String line = null;
                     while (isRun && ((line = br.readLine()) != null)) {
                         if (!"mapDone".equals(line)) {
                             String[] strings = line.split("\\|");
-                            if (virtualSet.contains(strings[0])) {
-                                virtualClients.put(strings[0], Boolean.parseBoolean(strings[1]));
+                            if (GlobalValues.portList.contains(Integer.parseInt(strings[0]))) {
+                                GlobalValues.portMacMap.put(Integer.parseInt(strings[0]), strings[1]);
                             }
                         } else {
-                            Log.d(TAG, "run: " + virtualClients.toString());
+                            Log.d(TAG, "map: " + GlobalValues.portMacMap.toString());
                             isRun = false;
                             Message msg = Message.obtain();
                             msg.what = INIT_MAP_DONE;
@@ -216,10 +194,8 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler = new Handler() {
         public void handleMessage(Message msg) {
 //            super.handleMessage(msg);
-            Log.d(TAG, "handleMessage: ");
             switch (msg.what) {
                 case INIT_MAP_DONE:
-                    Log.d(TAG, "run: " + virtualClients);
                     adapter.notifyDataSetChanged();
                     if (swipeRefresh.isRefreshing()) {
                         swipeRefresh.setRefreshing(false);
@@ -233,8 +209,8 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
-
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }
