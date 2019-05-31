@@ -107,15 +107,7 @@ public class SendBaseFragment extends Fragment {
                         if (isChecked) {
                             if (!TextUtils.isEmpty(editText.getText())) {
                                 byte[] data = editText.getText().toString().getBytes();
-                                baseMessage.setDataLength(data.length);
-                                baseMessage.setData(data);
-
-                                PackEmergencyProtocol<BaseMessage> packEmergencyProtocol = new PackEmergencyProtocol<>();
-                                emergencyProtocol = packEmergencyProtocol.packPackEmergencyProtocol(baseMessage);
-                                byte[] sendBytes = emergencyProtocol.getEmergencyProtocolByte();
-                                Log.d(TAG, "send:" + emergencyProtocol.toString());
-                                Log.d(TAG, "data length: " + sendBytes.length);
-                                udpServer.start(sendBytes);// 异步
+                                send(data);
                             } else {
                                 Toast.makeText(getContext(), "发送不能为空", Toast.LENGTH_SHORT).show();
                                 toggleButton.setChecked(false);
@@ -129,7 +121,7 @@ public class SendBaseFragment extends Fragment {
             case "图片":
                 view = inflater.inflate(R.layout.fragment_send_pic, container, false);
                 Button selectPic = view.findViewById(R.id.bt_select_pic);
-                Button sendPic = view.findViewById(R.id.bt_send_pic);
+                final Button sendPic = view.findViewById(R.id.bt_send_pic);
                 selectPic.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -140,7 +132,8 @@ public class SendBaseFragment extends Fragment {
                 sendPic.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+//                        byte[] data = editText.getText().toString().getBytes();
+//                        send(data);
                     }
                 });
                 break;
@@ -150,7 +143,8 @@ public class SendBaseFragment extends Fragment {
                 sendAud.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+//                        byte[] data = editText.getText().toString().getBytes();
+//                        send(data);
                     }
                 });
                 break;
@@ -159,6 +153,17 @@ public class SendBaseFragment extends Fragment {
         }
 
         return view;
+    }
+
+    private void send(byte[] data) {
+        baseMessage.setDataLength(data.length);
+        baseMessage.setData(data);
+        PackEmergencyProtocol<BaseMessage> packEmergencyProtocol = new PackEmergencyProtocol<>();
+        emergencyProtocol = packEmergencyProtocol.packPackEmergencyProtocol(baseMessage);
+        byte[] sendBytes = emergencyProtocol.getEmergencyProtocolByte();
+        Log.d(TAG, "send:" + emergencyProtocol.toString());
+        Log.d(TAG, "data length: " + sendBytes.length);
+        udpServer.start(sendBytes);// 异步
     }
 
     // TODO: Rename method, update argument and hook method into UI event
