@@ -1,5 +1,6 @@
 package com.example.festec.udpbrodcastactivity.module.udp;
 
+import android.support.v4.app.NavUtils;
 import android.util.Log;
 
 import java.net.DatagramPacket;
@@ -79,8 +80,9 @@ public class UdpServer {
     }
 
     private void runServerNow(int udpPort, byte[] data) {
+        DatagramSocket ds = null;
         try {
-            DatagramSocket ds = new DatagramSocket();
+            ds = new DatagramSocket();
             isUdpRun = true;
             while (isUdpRun) {
                 InetAddress adds = InetAddress.getByName(ip);
@@ -90,6 +92,10 @@ public class UdpServer {
         } catch (Exception e) {
             e.printStackTrace();
             Log.d(TAG, "UdpTestServer run Exception: " + e.toString());
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
         }
     }
 

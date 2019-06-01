@@ -31,9 +31,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.festec.udpbrodcastactivity.R;
 import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 import com.example.festec.udpbrodcastactivity.module.message.BaseMessage;
@@ -227,7 +224,7 @@ public class SendBaseFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     private void initAudio() {
         //播放的采样频率 和录制的采样频率一样
-        int sampleRate = 44100;
+        int sampleRate = 8000;
         //和录制的一样的
         int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
         //录音用输入单声道  播放用输出单声道
@@ -235,15 +232,19 @@ public class SendBaseFragment extends Fragment {
 
         minBufferSize = AudioRecord.getMinBufferSize(
                 sampleRate,
-                channelConfig, AudioFormat.ENCODING_PCM_16BIT);
+                channelConfig, AudioFormat.ENCODING_PCM_8BIT);
+        Log.d(TAG, "8000hz mp3 " + AudioRecord.getMinBufferSize(8000, channelConfig, AudioFormat.ENCODING_MP3));
+        Log.d(TAG, "44100hz 8bit " + AudioRecord.getMinBufferSize(44100, channelConfig, AudioFormat.ENCODING_PCM_8BIT));
+        Log.d(TAG, "4000hz 8bit " + AudioRecord.getMinBufferSize(4000, channelConfig, AudioFormat.ENCODING_PCM_8BIT));
+        Log.d(TAG, "8000hz 8bit " + AudioRecord.getMinBufferSize(8000, channelConfig, AudioFormat.ENCODING_PCM_8BIT));
         Log.d(TAG, "****RecordMinBufferSize = " + minBufferSize);
         audioRec = new AudioRecord(
                 MediaRecorder.AudioSource.MIC,
                 sampleRate,
                 channelConfig,
                 audioFormat,
-                minBufferSize * 4);
-        audBuffer = new byte[minBufferSize * 4];
+                minBufferSize);
+        audBuffer = new byte[minBufferSize];
 
         if (audioRec == null) {
             return;
@@ -281,10 +282,14 @@ public class SendBaseFragment extends Fragment {
         switch (requestCode) {
             case RC_CHOOSE_PHOTO:
                 Uri uri = intent.getData();
-                String filePath = FileUtil.getFilePathByUri(getContext(), uri);
-                if (!TextUtils.isEmpty(filePath)) {
-                    data = image2Bytes(filePath);
+                String filePath = null;
+                if (uri != null) {
+                    filePath = FileUtil.getFilePathByUri(getContext(), uri);
+                    if (!TextUtils.isEmpty(filePath)) {
+                        data = image2Bytes(filePath);
+                    }
                 }
+
 //                if (!TextUtils.isEmpty(filePath)) {
 //                    RequestOptions requestOptions1 = new RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE);
 //                    //将照片显示在 ivImage上
@@ -331,7 +336,7 @@ public class SendBaseFragment extends Fragment {
         byte[] sendBytes = emergencyProtocol.getEmergencyProtocolByte();
 //        Log.d(TAG, "send:" + emergencyProtocol.toString());
 //        Log.d(TAG, "data length: " + sendBytes.length);
-        if (sendBytes.length > 4096) {
+        if (sendBytes.length > 8192) {
             Toast.makeText(getContext(), "内容过大，请重新选择", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -346,7 +351,7 @@ public class SendBaseFragment extends Fragment {
         byte[] sendBytes = emergencyProtocol.getEmergencyProtocolByte();
 //        Log.d(TAG, "send:" + emergencyProtocol.getCrc32());
 //        Log.d(TAG, "data length: " + sendBytes.length);
-        if (sendBytes.length > 4096) {
+        if (sendBytes.length > 8192) {
             Toast.makeText(getContext(), "内容过大，请重新选择", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -393,13 +398,5 @@ public class SendBaseFragment extends Fragment {
         void onBaseFragmentInteraction(Uri uri);
     }
 
-    static class UdpTask extends AsyncTask<byte[], Void, Void> {
-
-        @Override
-        protected Void doInBackground(byte[]... bytes) {
-            udpServer.start(bytes[0]);
-            return null;
-        }
-    }
 
 }
