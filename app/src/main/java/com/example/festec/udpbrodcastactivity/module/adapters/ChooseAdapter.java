@@ -8,10 +8,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.festec.udpbrodcastactivity.R;
+import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 
 import java.util.HashSet;
 import java.util.List;
@@ -19,10 +21,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 public class ChooseAdapter extends RecyclerView.Adapter<ChooseAdapter.ViewHolder> {
-    private List<Integer> clients;
+    private List<Integer> onlineClients;
 
     public ChooseAdapter(List<Integer> clients) {
-        this.clients = clients;
+        this.onlineClients = clients;
     }
 
 
@@ -38,14 +40,26 @@ public class ChooseAdapter extends RecyclerView.Adapter<ChooseAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        String text = "设备UDP监听端口：" + clients.get(i);
+        final int udpPort = onlineClients.get(i);
+        String text = "设备UDP监听端口：" + udpPort;
         viewHolder.checkBox.setText(text);
+
+        viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    GlobalValues.checkedPort.add(udpPort);
+                } else {
+                    GlobalValues.checkedPort.remove(udpPort);
+                }
+            }
+        });
     }
 
 
     @Override
     public int getItemCount() {
-        return clients.size();
+        return onlineClients.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

@@ -5,6 +5,7 @@ import com.example.festec.udpbrodcastactivity.module.utils.ByteUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Calendar;
 
 import static org.junit.Assert.*;
 
@@ -21,7 +22,7 @@ public class ExampleUnitTest {
 
     @Test
     public void testUdp() {
-        String mac = "1D:2F:33:01:FE:CD";
-        System.out.println(Arrays.toString(ByteUtils.macToByte(mac)));
+        Calendar cal = Calendar.getInstance();
+        System.out.println(Long.valueOf(cal.getTimeInMillis() % 100000000).intValue());
     }
 }

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.fragments.SendAudFragment">
+    tools:context=".view.fragments.SendBaseFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,11 +12,13 @@
         android:gravity="center|top">
 
 
-        <Button
+        <ToggleButton
             android:id="@+id/bt_send_aud"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:text="开始广播" />
+            android:textOff="开始广播"
+            android:textOn="停止广播"/>
+
     </LinearLayout>
 
 </FrameLayout>

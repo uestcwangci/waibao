@@ -1,6 +1,8 @@
 package com.example.festec.udpbrodcastactivity.module.protocol;
 
 
+import android.util.Log;
+
 import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 import com.example.festec.udpbrodcastactivity.module.message.BaseMessage;
 import com.example.festec.udpbrodcastactivity.module.message.HeatBeatMessage;
@@ -10,8 +12,10 @@ import com.example.festec.udpbrodcastactivity.module.message.SettingsMessage;
 import com.example.festec.udpbrodcastactivity.module.message.StopMessage;
 import com.example.festec.udpbrodcastactivity.module.utils.ByteUtils;
 import com.example.festec.udpbrodcastactivity.module.utils.CRC32Utils;
+import com.example.festec.udpbrodcastactivity.view.login.LoginActivity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -19,6 +23,13 @@ public class PackEmergencyProtocol<T> {
     private EmergencyProtocol<T> emergencyProtocol;
     private EmergencyHeader header;
     private EmergencyBody<T> body;
+    private static byte[] destinationAddress = new byte[]{0x01, 0x01, 0x6C, 0x06, (byte) 0xA6, 0x29};
+    private static List<byte[]> destinationList = new ArrayList<>();
+
+    static {
+        destinationList.add(destinationAddress);
+    }
+
 
 
 
@@ -37,12 +48,8 @@ public class PackEmergencyProtocol<T> {
         //设置目的设备的地址长度
         body.setDestinationCount((short) 6);
         //设置目的设备逻辑地址
-        List<byte[]> destinationList = new ArrayList<>();
-        // 虚拟mac地址00:01:6C:06:A6:29
-        byte[] destinationAddress = new byte[]{0x01, 0x01, 0x6C, 0x06, (byte) 0xA6, 0x29};
-        destinationList.add(destinationAddress);
+        // 虚拟mac地址0x01, 0x01, 0x6C, 0x06, (byte) 0xA6, 0x29
         body.setDestinationAddressList(destinationList);
-
         if (t instanceof RegisterMessage) {
             //命令ID
             body.setOrderID((short) 0x0010);//注册
@@ -89,7 +96,7 @@ public class PackEmergencyProtocol<T> {
         } else if (t instanceof SettingsMessage) {
             header.setPacketLength(24 + 2 + 12 * body.getDestinationCount() + 2 + 4 + ((SettingsMessage) t).getOrderLength() + 4);
         } else if (t instanceof BaseMessage) {
-            header.setPacketLength(24 + 2 + body.getDestinationCount() + 2 + 2 + ((BaseMessage) t).getOrderLength() + 4);
+            header.setPacketLength(18 + 2 + body.getDestinationCount() + 2 + 2 + ((BaseMessage) t).getOrderLength() + ((BaseMessage) t).getDataLength() + 4);
         }
     }
 }

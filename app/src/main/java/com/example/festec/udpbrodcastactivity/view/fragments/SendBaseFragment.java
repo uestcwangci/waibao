@@ -1,10 +1,23 @@
 package com.example.festec.udpbrodcastactivity.view.fragments;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioRecord;
+import android.media.AudioTrack;
+import android.media.MediaRecorder;
+import android.media.audiofx.AcousticEchoCanceler;
+import android.media.audiofx.AutomaticGainControl;
+import android.media.audiofx.NoiseSuppressor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -14,15 +27,28 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.festec.udpbrodcastactivity.R;
 import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 import com.example.festec.udpbrodcastactivity.module.message.BaseMessage;
 import com.example.festec.udpbrodcastactivity.module.protocol.EmergencyProtocol;
 import com.example.festec.udpbrodcastactivity.module.protocol.PackEmergencyProtocol;
 import com.example.festec.udpbrodcastactivity.module.udp.UdpServer;
+import com.example.festec.udpbrodcastactivity.module.utils.ByteUtils;
+import com.example.festec.udpbrodcastactivity.module.utils.FileUtil;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.DatagramPacket;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -39,7 +65,7 @@ public class SendBaseFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private static final String ARG_PARAM3 = "param3";
     private static final String TAG = "waibao";
-
+    private static final int RC_CHOOSE_PHOTO = 686;
 
 
     private static UdpServer udpServer;
@@ -51,6 +77,8 @@ public class SendBaseFragment extends Fragment {
     private String broadcastType;
     private String broadcastLevel;
     private String dataType;
+
+    byte[] data;
 
     private OnBaseFragmentInteractionListener mListener;
 
@@ -87,14 +115,15 @@ public class SendBaseFragment extends Fragment {
             broadcastLevel = getArguments().getString(ARG_PARAM2);
             dataType = getArguments().getString(ARG_PARAM3);
         }
-        baseMessage = new BaseMessage(broadcastType, broadcastLevel, broadcastType);
-        udpServer = new UdpServer(GlobalValues.portList);
+        baseMessage = new BaseMessage(broadcastType, broadcastLevel, dataType);
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        udpServer = new UdpServer(GlobalValues.checkedPort);
+
         View view = null;
         switch (dataType) {
             case "文本":
@@ -106,7 +135,7 @@ public class SendBaseFragment extends Fragment {
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
                             if (!TextUtils.isEmpty(editText.getText())) {
-                                byte[] data = editText.getText().toString().getBytes();
+                                data = editText.getText().toString().getBytes();
                                 send(data);
                             } else {
                                 Toast.makeText(getContext(), "发送不能为空", Toast.LENGTH_SHORT).show();
@@ -120,40 +149,180 @@ public class SendBaseFragment extends Fragment {
                 break;
             case "图片":
                 view = inflater.inflate(R.layout.fragment_send_pic, container, false);
-                Button selectPic = view.findViewById(R.id.bt_select_pic);
-                final Button sendPic = view.findViewById(R.id.bt_send_pic);
+                final Button selectPic = view.findViewById(R.id.bt_select_pic);
+                final ToggleButton sendPic = view.findViewById(R.id.bt_send_pic);
                 selectPic.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        choosePhoto();
                     }
                 });
-
-                sendPic.setOnClickListener(new View.OnClickListener() {
+                sendPic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onClick(View v) {
-//                        byte[] data = editText.getText().toString().getBytes();
-//                        send(data);
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            if (data != null) {
+                                send(data);
+                            } else {
+                                Toast.makeText(getContext(), "请选择图片", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            udpServer.udpServerClose();
+                        }
                     }
                 });
                 break;
             case "音频":
                 view = inflater.inflate(R.layout.fragment_send_aud, container, false);
-                Button sendAud = view.findViewById(R.id.bt_send_aud);
-                sendAud.setOnClickListener(new View.OnClickListener() {
+                ToggleButton sendAud = view.findViewById(R.id.bt_send_aud);
+                initAudio();
+                final boolean[] isRecording = {false};
+                sendAud.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onClick(View v) {
-//                        byte[] data = editText.getText().toString().getBytes();
-//                        send(data);
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            isRecording[0] = true;
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    audioRec.startRecording();
+                                    while (isRecording[0]) {
+                                        int length = audioRec.read(audBuffer, 0, minBufferSize);
+                                        send(audBuffer, length);
+                                    }
+                                }
+                            }).start();
+                        } else {
+                            if (audioRec != null) {
+                                audioRec.stop();
+                                audioRec.release();
+                            }
+                            isRecording[0] = false;
+                            send("stop".getBytes());
+//                            udpServer.udpServerClose();
+                        }
                     }
                 });
+
                 break;
             default:
                 break;
         }
-
         return view;
     }
+
+    /**
+     * 打开系统相册
+     */
+    private void choosePhoto() {
+        Intent intentToPickPic = new Intent(Intent.ACTION_PICK, null);
+        intentToPickPic.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+        startActivityForResult(intentToPickPic, RC_CHOOSE_PHOTO);
+    }
+
+    private int minBufferSize;
+    private AudioRecord audioRec;
+    private byte[] audBuffer;
+
+
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
+    private void initAudio() {
+        //播放的采样频率 和录制的采样频率一样
+        int sampleRate = 44100;
+        //和录制的一样的
+        int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
+        //录音用输入单声道  播放用输出单声道
+        int channelConfig = AudioFormat.CHANNEL_IN_MONO;
+
+        minBufferSize = AudioRecord.getMinBufferSize(
+                sampleRate,
+                channelConfig, AudioFormat.ENCODING_PCM_16BIT);
+        Log.d(TAG, "****RecordMinBufferSize = " + minBufferSize);
+        audioRec = new AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                sampleRate,
+                channelConfig,
+                audioFormat,
+                minBufferSize * 4);
+        audBuffer = new byte[minBufferSize * 4];
+
+        if (audioRec == null) {
+            return;
+        }
+        //声学回声消除器 AcousticEchoCanceler 消除了从远程捕捉到音频信号上的信号的作用
+        if (AcousticEchoCanceler.isAvailable()) {
+            AcousticEchoCanceler aec = AcousticEchoCanceler.create(audioRec.getAudioSessionId());
+            if (aec != null) {
+                aec.setEnabled(true);
+            }
+        }
+
+        //自动增益控制 AutomaticGainControl 自动恢复正常捕获的信号输出
+        if (AutomaticGainControl.isAvailable()) {
+            AutomaticGainControl agc = AutomaticGainControl.create(audioRec.getAudioSessionId());
+            if (agc != null) {
+                agc.setEnabled(true);
+            }
+        }
+
+        //噪声抑制器 NoiseSuppressor 可以消除被捕获信号的背景噪音
+        if (NoiseSuppressor.isAvailable()) {
+            NoiseSuppressor nc = NoiseSuppressor.create(audioRec.getAudioSessionId());
+            if (nc != null) {
+                nc.setEnabled(true);
+            }
+        }
+    }
+
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        super.onActivityResult(requestCode, resultCode, intent);
+        switch (requestCode) {
+            case RC_CHOOSE_PHOTO:
+                Uri uri = intent.getData();
+                String filePath = FileUtil.getFilePathByUri(getContext(), uri);
+                if (!TextUtils.isEmpty(filePath)) {
+                    data = image2Bytes(filePath);
+                }
+//                if (!TextUtils.isEmpty(filePath)) {
+//                    RequestOptions requestOptions1 = new RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE);
+//                    //将照片显示在 ivImage上
+//                    Glide.with(this).load(filePath).apply(requestOptions1).into(img);
+//                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
+    /**
+     * 根据图片路径，把图片转为byte数组
+     * @param path  图片路径
+     * @return      byte[]
+     */
+    private byte[] image2Bytes(String path)
+    {
+        FileInputStream fin;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+
+            fin = new FileInputStream(new File(path));
+            byte[] buf = new byte[1024];
+            int count = 0;
+            while ((count = fin.read(buf)) > 0) {
+                baos.write(buf, 0, count);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return baos.toByteArray();
+    }
+
 
     private void send(byte[] data) {
         baseMessage.setDataLength(data.length);
@@ -161,9 +330,28 @@ public class SendBaseFragment extends Fragment {
         PackEmergencyProtocol<BaseMessage> packEmergencyProtocol = new PackEmergencyProtocol<>();
         emergencyProtocol = packEmergencyProtocol.packPackEmergencyProtocol(baseMessage);
         byte[] sendBytes = emergencyProtocol.getEmergencyProtocolByte();
-        Log.d(TAG, "send:" + emergencyProtocol.toString());
-        Log.d(TAG, "data length: " + sendBytes.length);
+//        Log.d(TAG, "send:" + emergencyProtocol.toString());
+//        Log.d(TAG, "data length: " + sendBytes.length);
+        if (sendBytes.length > 4096) {
+            Toast.makeText(getContext(), "内容过大，请重新选择", Toast.LENGTH_SHORT).show();
+            return;
+        }
         udpServer.start(sendBytes);// 异步
+    }
+
+    private void send(byte[] data, int dataLength) {
+        baseMessage.setDataLength(dataLength);
+        baseMessage.setData(ByteUtils.splice(data, 0, dataLength, 0));
+        PackEmergencyProtocol<BaseMessage> packEmergencyProtocol = new PackEmergencyProtocol<>();
+        emergencyProtocol = packEmergencyProtocol.packPackEmergencyProtocol(baseMessage);
+        byte[] sendBytes = emergencyProtocol.getEmergencyProtocolByte();
+//        Log.d(TAG, "send:" + emergencyProtocol.getCrc32());
+//        Log.d(TAG, "data length: " + sendBytes.length);
+        if (sendBytes.length > 4096) {
+            Toast.makeText(getContext(), "内容过大，请重新选择", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        udpServer.startNow(sendBytes);// 异步
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -186,8 +374,9 @@ public class SendBaseFragment extends Fragment {
 
     @Override
     public void onDetach() {
-        super.onDetach();
+        udpServer.udpServerClose();
         mListener = null;
+        super.onDetach();
     }
 
     /**

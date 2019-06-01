@@ -17,7 +17,7 @@ public class BaseMessage {
     protected byte[] data; // 内容
 
     public BaseMessage(String broadcastType, String broadcastLevel, String dataType) {
-        this.orderLength = 7;
+        this.orderLength = 15;
         switch (broadcastType) {
             case "应急演练-发布系统演练":
                 this.broadcastType = 0x01;
@@ -74,14 +74,11 @@ public class BaseMessage {
 
     public byte[] getBaseMessageBytes() {
         byte[] bytes = ByteUtils.short2Byte(orderLength);
-        byte[] bytes1 = {broadcastType};
-        byte[] bytes2 = {level};
-        byte[] bytes3 = {dataType};
-        bytes = ByteUtils.addBytes(bytes, bytes1);
-        bytes = ByteUtils.addBytes(bytes, bytes2);
+        bytes = ByteUtils.addBytes(bytes, new byte[]{broadcastType});
+        bytes = ByteUtils.addBytes(bytes, new byte[]{level});
         bytes = ByteUtils.addBytes(bytes, ByteUtils.intToByte(getUTCTimeInt()));// startTime
         bytes = ByteUtils.addBytes(bytes, ByteUtils.intToByte(getUTCTimeInt()));// endTime
-        bytes = ByteUtils.addBytes(bytes, bytes3);// dataType
+        bytes = ByteUtils.addBytes(bytes, new byte[]{dataType});// dataType
         bytes = ByteUtils.addBytes(bytes, ByteUtils.intToByte(dataLength));// dataType
         bytes = ByteUtils.addBytes(bytes, data);
         return bytes;

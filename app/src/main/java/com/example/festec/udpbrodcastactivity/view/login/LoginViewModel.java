@@ -4,6 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.festec.udpbrodcastactivity.module.login_data.LoginRepository;
@@ -38,16 +39,21 @@ public class LoginViewModel extends ViewModel {
      * @param username 用户名
      * @param ipAdd    ip地址
      */
-    public void login(String username, String ipAdd) {
+    public void login(Context context, String username, String ipAdd) {
 
-        Result<LoggedInUser> result = loginRepository.login(username, ipAdd);
+        if (!loginRepository.isLoggedIn()) {
+            Result<LoggedInUser> result = loginRepository.login(username, ipAdd);
 
-        if (result instanceof Result.Success) {
-            LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
-            loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
+            if (result instanceof Result.Success) {
+                LoggedInUser data = ((Result.Success<LoggedInUser>) result).getData();
+                loginResult.setValue(new LoginResult(new LoggedInUserView(data.getDisplayName())));
+            } else {
+                loginResult.setValue(new LoginResult(R.string.login_failed));
+            }
         } else {
-            loginResult.setValue(new LoginResult(R.string.login_failed));
+            Toast.makeText(context, "已登录", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     public void logout(Context context) {

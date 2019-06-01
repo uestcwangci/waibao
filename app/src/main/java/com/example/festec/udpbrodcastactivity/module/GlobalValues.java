@@ -12,6 +12,9 @@ public class GlobalValues {
     public static int tcpServerPort = 0;
     public static String localMac = null;
     public static List<Integer> portList;
+    public static List<Integer> onlineList;
+    public static Set<Integer> checkSet;
     public static Map<Integer, String> portMacMap;
 
+    public static Set<Integer> checkedPort;
 }

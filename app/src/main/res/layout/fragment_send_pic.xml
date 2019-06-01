@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.fragments.SendPicFragment">
+    tools:context=".view.fragments.SendBaseFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <LinearLayout
@@ -18,11 +19,12 @@
             android:layout_height="wrap_content"
             android:text="选择图片" />
 
-        <Button
+        <ToggleButton
             android:id="@+id/bt_send_pic"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:text="发送" />
+            android:textOff="发送"
+            android:textOn="停止"/>
     </LinearLayout>
 
 </FrameLayout>

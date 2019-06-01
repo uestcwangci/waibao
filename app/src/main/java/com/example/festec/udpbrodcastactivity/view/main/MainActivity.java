@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "waibao";
     private SingleLocalSocket singleLocalSocket;
 
+    private PortAdapter adapter;
 
     //UI
     private RecyclerView recyclerView;
@@ -84,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycle_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+        adapter = new PortAdapter(GlobalValues.portMacMap);
+        recyclerView.setAdapter(adapter);
 
 
         // 下拉刷新
@@ -125,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     BufferedWriter bw = singleLocalSocket.getBw();
-                    bw.write("virtualMap" + "|" + GlobalValues.udpPort);
+                    bw.write("map" + GlobalValues.udpPort);
                     bw.newLine();
                     bw.flush();
                 } catch (IOException e) {
@@ -141,12 +144,18 @@ public class MainActivity extends AppCompatActivity {
                     thread1.join();
                     BufferedReader br = singleLocalSocket.getBr();
                     String line = null;
+                    GlobalValues.onlineList.clear();
+                    GlobalValues.checkSet.clear();
                     while (isRun && ((line = br.readLine()) != null)) {
                         if (!"mapDone".equals(line)) {
                             String[] strings = line.split("\\|");
-                            if (!GlobalValues.localMac.equalsIgnoreCase(strings[1])) {
-                                GlobalValues.portList.add(Integer.parseInt(strings[0]));
-                                GlobalValues.portMacMap.put(Integer.parseInt(strings[0]), strings[1]);
+                            int udpPort = Integer.parseInt(strings[0]);
+                            String mac = strings[1];
+                            GlobalValues.portMacMap.put(udpPort, mac);
+                            GlobalValues.portList.add(udpPort);
+                            if (!"0".equals(strings[1]) && !GlobalValues.checkSet.contains(udpPort)) {
+                                GlobalValues.checkSet.add(udpPort);
+                                GlobalValues.onlineList.add(udpPort);
                             }
                         } else {
                             Log.d(TAG, "map: " + GlobalValues.portMacMap.toString());
@@ -194,8 +203,7 @@ public class MainActivity extends AppCompatActivity {
 //            super.handleMessage(msg);
             switch (msg.what) {
                 case INIT_MAP_DONE:
-                    PortAdapter adapter = new PortAdapter(GlobalValues.portMacMap);
-                    recyclerView.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
                     if (swipeRefresh.isRefreshing()) {
                         swipeRefresh.setRefreshing(false);
                     }

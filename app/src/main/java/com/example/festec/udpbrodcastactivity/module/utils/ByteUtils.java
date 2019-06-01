@@ -91,5 +91,17 @@ public class ByteUtils {
         }
         return bytes;
     }
+
+    // 对数组切片从start（含）到end（不含)
+    public static byte[] splice(byte[] data, int start, int end, int offset) {
+        start = start + offset;
+        end = end + offset;
+        byte[] bytes = new byte[end - start];
+        for (int i = start; i < end; i++) {
+            bytes[i - start] = data[i];
+        }
+        return bytes;
+    }
+
 }
 

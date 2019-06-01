@@ -42,7 +42,7 @@ public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
         String mac = portMacMap.get(GlobalValues.portList.get(i));
-        if ("".equalsIgnoreCase(mac)) {
+        if ("0".equals(mac)) {
             viewHolder.tvOnline.setText("离线");
             viewHolder.imgIsOnline.setImageResource(R.drawable.ic_offline_icon2);
         } else {

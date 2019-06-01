@@ -46,7 +46,12 @@ public class LoginActivity extends AppCompatActivity {
     private final String[] permissions = new String[]{
             Manifest.permission.ACCESS_WIFI_STATE,
             Manifest.permission.CHANGE_WIFI_STATE,
-            Manifest.permission.WAKE_LOCK};
+            Manifest.permission.WAKE_LOCK,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.MODIFY_AUDIO_SETTINGS,
+            Manifest.permission.RECORD_AUDIO};
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -136,7 +141,8 @@ public class LoginActivity extends AppCompatActivity {
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
 //                    loadingProgressBar.setVisibility(View.VISIBLE);
                     dialog.show();
-                    loginViewModel.login(usernameEditText.getText().toString(),
+
+                    loginViewModel.login(LoginActivity.this, usernameEditText.getText().toString(),
                             ipAddEditText.getText().toString().trim());
 
                 }
@@ -149,7 +155,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                loadingProgressBar.setVisibility(View.VISIBLE);
                 dialog.show();
-                loginViewModel.login(usernameEditText.getText().toString(),
+                loginViewModel.login(LoginActivity.this, usernameEditText.getText().toString(),
                         ipAddEditText.getText().toString().trim());
             }
         });
@@ -167,7 +173,10 @@ public class LoginActivity extends AppCompatActivity {
         GlobalValues.localMac = getMacAddress();
         GlobalValues.tcpServerPort = 10041;
         GlobalValues.portList = new ArrayList<>();
+        GlobalValues.onlineList = new ArrayList<>();
+        GlobalValues.checkSet = new HashSet<>();
         GlobalValues.portMacMap = new LinkedHashMap<>();
+        GlobalValues.checkedPort = new HashSet<>();
     }
 
     @Override
@@ -179,7 +188,7 @@ public class LoginActivity extends AppCompatActivity {
      * 根据IP地址获取MAC地址
      * @return
      */
-    private static String getMacAddress() {
+    private String getMacAddress() {
         String strMacAddr = null;
         try {
             // 获得IpD地址

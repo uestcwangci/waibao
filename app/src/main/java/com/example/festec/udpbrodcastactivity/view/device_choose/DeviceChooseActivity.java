@@ -44,8 +44,14 @@ public class DeviceChooseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_choose);
         initUI();
+        GlobalValues.checkedPort.clear();
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
 
     private void initUI() {
         ButtonListener buttonListener = new ButtonListener();
@@ -64,7 +70,7 @@ public class DeviceChooseActivity extends AppCompatActivity {
 //        recyclerView.addItemDecoration(new RecyclerViewDivider(this, LinearLayoutManager.VERTICAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        ChooseAdapter chooseAdapter = new ChooseAdapter(GlobalValues.portList);
+        ChooseAdapter chooseAdapter = new ChooseAdapter(GlobalValues.onlineList);
         recyclerView.setAdapter(chooseAdapter);
 
 
