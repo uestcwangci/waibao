@@ -175,7 +175,6 @@ public class SendBaseFragment extends Fragment {
             case "音频":
                 view = inflater.inflate(R.layout.fragment_send_aud, container, false);
                 ToggleButton sendAud = view.findViewById(R.id.bt_send_aud);
-                initAudio();
                 final boolean[] isRecording = {false};
                 sendAud.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -185,21 +184,21 @@ public class SendBaseFragment extends Fragment {
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    initAudio();
                                     audioRec.startRecording();
                                     while (isRecording[0]) {
                                         int length = audioRec.read(audBuffer, 0, minBufferSize);
-                                        send(audBuffer, length);
+                                        if (length > 0) {
+                                            send(audBuffer, length);
+                                        }
                                     }
                                 }
                             }).start();
                         } else {
-                            if (audioRec != null) {
-                                audioRec.stop();
-                                audioRec.release();
-                            }
                             isRecording[0] = false;
-                            send("stop".getBytes());
-//                            udpServer.udpServerClose();
+                            audioRec.stop();
+                            audioRec.release();
+                            udpServer.udpServerClose();
                         }
                     }
                 });

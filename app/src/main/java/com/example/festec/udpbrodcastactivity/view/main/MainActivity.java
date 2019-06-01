@@ -52,12 +52,13 @@ public class MainActivity extends AppCompatActivity {
         singleLocalSocket = SingleLocalSocket.getInstance();
     }
 
-
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
+    protected void onResume() {
+        super.onResume();
         initMap();
+
     }
+
 
     private void initUI() {
         ButtonListener buttonListener = new ButtonListener();

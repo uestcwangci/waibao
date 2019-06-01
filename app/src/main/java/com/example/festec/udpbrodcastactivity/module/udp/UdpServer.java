@@ -13,7 +13,6 @@ import java.util.Set;
 public class UdpServer {
     private static final String TAG = "waibao";
 
-    private DatagramSocket ds = null;
 
     private boolean isUdpRun = true;
     private String ip = "255.255.255.255";//广播地址
@@ -30,46 +29,38 @@ public class UdpServer {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    ds = new DatagramSocket();
-                    for (final Integer udpPort : portList) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                runServerNow(udpPort, data);
-                            }
-                        }).start();
-                    }
-                } catch (SocketException e) {
-                    e.printStackTrace();
+                for (final Integer udpPort : portList) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            runServerNow(udpPort, data);
+                        }
+                    }).start();
                 }
             }
         }).start();
     }
     public void start(final byte[] data){
-        isUdpRun = true;
         new Thread(new Runnable() {
             @Override
             public void run() {
-                try {
-                    ds = new DatagramSocket();
-                    for (final Integer udpPort : portList) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                runServer(udpPort, data);
-                            }
-                        }).start();
-                    }
-                } catch (SocketException e) {
-                    e.printStackTrace();
+                for (final Integer udpPort : portList) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            runServer(udpPort, data);
+                        }
+                    }).start();
                 }
             }
         }).start();
     }
 
     private void runServer(int udpPort, byte[] data) {
+        DatagramSocket ds = null;
         try {
+            ds = new DatagramSocket();
+            isUdpRun = true;
             while (isUdpRun) {
                 InetAddress adds = InetAddress.getByName(ip);
                 DatagramPacket dp = new DatagramPacket(data, data.length, adds, udpPort);
@@ -79,11 +70,18 @@ public class UdpServer {
         } catch (Exception e) {
             e.printStackTrace();
             Log.d(TAG, "UdpTestServer run Exception: " + e.toString());
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
         }
     }
 
     private void runServerNow(int udpPort, byte[] data) {
         try {
+            DatagramSocket ds = new DatagramSocket();
+            isUdpRun = true;
             while (isUdpRun) {
                 InetAddress adds = InetAddress.getByName(ip);
                 DatagramPacket dp = new DatagramPacket(data, data.length, adds, udpPort);
@@ -99,9 +97,6 @@ public class UdpServer {
 
     public void udpServerClose() {
         isUdpRun = false;
-//        if (ds != null) {
-//            ds.close();
-//        }
         Log.d(TAG, "UDP 服务器关闭");
     }
 
