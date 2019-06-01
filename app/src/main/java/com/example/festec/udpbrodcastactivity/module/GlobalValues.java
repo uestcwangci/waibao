@@ -8,13 +8,10 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GlobalValues {
-    public static int udpPort = 6888;
-    public static int tcpServerPort = 0;
-    public static String localMac = null;
-    public static List<Integer> portList;
-    public static List<Integer> onlineList;
-    public static Set<Integer> checkSet;
-    public static Map<Integer, String> portMacMap;
+    public static int tcpServerPort;
+    public static List<String> onlineList;
+    public static List<String> macList;
+    public static Map<String, Boolean> macOnlineMap;
 
-    public static Set<Integer> checkedPort;
+    public static Set<String> checkedMac;
 }

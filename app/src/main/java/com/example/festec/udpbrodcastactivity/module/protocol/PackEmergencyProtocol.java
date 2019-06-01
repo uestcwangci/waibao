@@ -79,7 +79,7 @@ public class PackEmergencyProtocol<T> {
     /****设置消息头的信息****/
     private void setHeaderMessage(T t) {
         //设置源设备逻辑地址
-        byte[] sourceAddress = ByteUtils.macToByte(GlobalValues.localMac);
+        byte[] sourceAddress = ByteUtils.macToByte("C7:C6:6C:39:E3:F8");
         header.setSourceAddress(sourceAddress);
         //设置数据包的消息编号
         header.setMessageId((short) 1);

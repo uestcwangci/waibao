@@ -1,6 +1,5 @@
 package com.example.festec.udpbrodcastactivity.module.adapters;
 
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -9,21 +8,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.festec.udpbrodcastactivity.R;
 import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeMap;
 
 public class ChooseAdapter extends RecyclerView.Adapter<ChooseAdapter.ViewHolder> {
-    private List<Integer> onlineClients;
+    private List<String> onlineClients;
 
-    public ChooseAdapter(List<Integer> clients) {
+    public ChooseAdapter(List<String> clients) {
         this.onlineClients = clients;
     }
 
@@ -40,17 +34,17 @@ public class ChooseAdapter extends RecyclerView.Adapter<ChooseAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        final int udpPort = onlineClients.get(i);
-        String text = "设备UDP监听端口：" + udpPort;
+        final String mac = onlineClients.get(i);
+        String text = "设备mac地址：" + mac;
         viewHolder.checkBox.setText(text);
 
         viewHolder.checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
-                    GlobalValues.checkedPort.add(udpPort);
+                    GlobalValues.checkedMac.add(mac);
                 } else {
-                    GlobalValues.checkedPort.remove(udpPort);
+                    GlobalValues.checkedMac.remove(mac);
                 }
             }
         });

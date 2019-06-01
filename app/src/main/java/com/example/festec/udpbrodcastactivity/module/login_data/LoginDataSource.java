@@ -30,20 +30,7 @@ public class LoginDataSource {
     }
 
     public void logout() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(SingleLocalSocket.getInstance().getOs()));
-                    bw.write("quit" + GlobalValues.udpPort);
-                    Log.d("waibao", "send quit");
-                    bw.newLine();
-                    bw.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
+
     }
 
 
@@ -63,15 +50,6 @@ public class LoginDataSource {
                 SingleLocalSocket.getInstance().initSocket(user.getIp(), GlobalValues.tcpServerPort);
                 localSocket = SingleLocalSocket.getInstance();
                 if (localSocket.getSocket().isConnected()) {
-                    BufferedWriter bw = null;
-                    try {
-                        bw = localSocket.getBw();
-                        bw.write(GlobalValues.udpPort + "|" + GlobalValues.localMac);
-                        bw.newLine();
-                        bw.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
                     return new Result.Success<>(user);
                 } else {
                     return new Result.Failed<>(user);

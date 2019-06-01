@@ -2,17 +2,13 @@ package com.example.festec.udpbrodcastactivity.view.fragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioRecord;
-import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.media.audiofx.AcousticEchoCanceler;
 import android.media.audiofx.AutomaticGainControl;
 import android.media.audiofx.NoiseSuppressor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -27,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -43,9 +38,6 @@ import com.example.festec.udpbrodcastactivity.module.utils.FileUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.net.DatagramPacket;
-import java.util.Arrays;
-import java.util.LinkedList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -119,7 +111,7 @@ public class SendBaseFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        udpServer = new UdpServer(GlobalValues.checkedPort);
+        udpServer = new UdpServer();
 
         View view = null;
         switch (dataType) {
@@ -224,7 +216,7 @@ public class SendBaseFragment extends Fragment {
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     private void initAudio() {
         //播放的采样频率 和录制的采样频率一样
-        int sampleRate = 8000;
+        int sampleRate = 44100;
         //和录制的一样的
         int audioFormat = AudioFormat.ENCODING_PCM_16BIT;
         //录音用输入单声道  播放用输出单声道
@@ -233,10 +225,6 @@ public class SendBaseFragment extends Fragment {
         minBufferSize = AudioRecord.getMinBufferSize(
                 sampleRate,
                 channelConfig, AudioFormat.ENCODING_PCM_8BIT);
-        Log.d(TAG, "8000hz mp3 " + AudioRecord.getMinBufferSize(8000, channelConfig, AudioFormat.ENCODING_MP3));
-        Log.d(TAG, "44100hz 8bit " + AudioRecord.getMinBufferSize(44100, channelConfig, AudioFormat.ENCODING_PCM_8BIT));
-        Log.d(TAG, "4000hz 8bit " + AudioRecord.getMinBufferSize(4000, channelConfig, AudioFormat.ENCODING_PCM_8BIT));
-        Log.d(TAG, "8000hz 8bit " + AudioRecord.getMinBufferSize(8000, channelConfig, AudioFormat.ENCODING_PCM_8BIT));
         Log.d(TAG, "****RecordMinBufferSize = " + minBufferSize);
         audioRec = new AudioRecord(
                 MediaRecorder.AudioSource.MIC,
@@ -246,9 +234,6 @@ public class SendBaseFragment extends Fragment {
                 minBufferSize);
         audBuffer = new byte[minBufferSize];
 
-        if (audioRec == null) {
-            return;
-        }
         //声学回声消除器 AcousticEchoCanceler 消除了从远程捕捉到音频信号上的信号的作用
         if (AcousticEchoCanceler.isAvailable()) {
             AcousticEchoCanceler aec = AcousticEchoCanceler.create(audioRec.getAudioSessionId());
@@ -340,7 +325,7 @@ public class SendBaseFragment extends Fragment {
             Toast.makeText(getContext(), "内容过大，请重新选择", Toast.LENGTH_SHORT).show();
             return;
         }
-        udpServer.start(sendBytes);// 异步
+        udpServer.start(sendBytes, 2000);// 异步
     }
 
     private void send(byte[] data, int dataLength) {
@@ -355,7 +340,7 @@ public class SendBaseFragment extends Fragment {
             Toast.makeText(getContext(), "内容过大，请重新选择", Toast.LENGTH_SHORT).show();
             return;
         }
-        udpServer.startNow(sendBytes);// 异步
+        udpServer.start(sendBytes, 0);// 异步
     }
 
     // TODO: Rename method, update argument and hook method into UI event

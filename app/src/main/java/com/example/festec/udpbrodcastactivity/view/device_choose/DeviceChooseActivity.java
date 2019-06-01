@@ -7,28 +7,12 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.LinearLayout;
 
 import com.example.festec.udpbrodcastactivity.R;
 import com.example.festec.udpbrodcastactivity.module.GlobalValues;
-import com.example.festec.udpbrodcastactivity.module.SingleLocalSocket;
 import com.example.festec.udpbrodcastactivity.module.adapters.ChooseAdapter;
 import com.example.festec.udpbrodcastactivity.view.broadcast.BroadcastActivity;
-import com.example.festec.udpbrodcastactivity.view.divider.RecyclerViewDivider;
-import com.example.festec.udpbrodcastactivity.view.login.LoginActivity;
-import com.example.festec.udpbrodcastactivity.view.main.MainActivity;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 
 public class DeviceChooseActivity extends AppCompatActivity {
     private static final String TAG = "waibao";
@@ -44,7 +28,7 @@ public class DeviceChooseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device_choose);
         initUI();
-        GlobalValues.checkedPort.clear();
+        GlobalValues.checkedMac.clear();
 
     }
 

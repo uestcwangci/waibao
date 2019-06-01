@@ -22,10 +22,10 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
-    private Map<Integer, String> portMacMap;
+    private Map<String, Boolean> macOnlieMap;
 
-    public PortAdapter(Map<Integer, String> clients) {
-        this.portMacMap = clients;
+    public PortAdapter(Map<String, Boolean> clients) {
+        this.macOnlieMap = clients;
     }
 
 
@@ -41,8 +41,9 @@ public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
-        String mac = portMacMap.get(GlobalValues.portList.get(i));
-        if ("0".equals(mac)) {
+
+        boolean isOnline = macOnlieMap.get(GlobalValues.macList.get(i));
+        if (!isOnline) {
             viewHolder.tvOnline.setText("离线");
             viewHolder.imgIsOnline.setImageResource(R.drawable.ic_offline_icon2);
         } else {
@@ -55,7 +56,7 @@ public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return portMacMap.size();
+        return macOnlieMap.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

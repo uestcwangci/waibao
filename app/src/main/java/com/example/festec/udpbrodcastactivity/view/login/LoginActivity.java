@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.TreeMap;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -170,13 +169,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initGlobalValues() {
-        GlobalValues.localMac = getMacAddress();
         GlobalValues.tcpServerPort = 10041;
-        GlobalValues.portList = new ArrayList<>();
         GlobalValues.onlineList = new ArrayList<>();
-        GlobalValues.checkSet = new HashSet<>();
-        GlobalValues.portMacMap = new LinkedHashMap<>();
-        GlobalValues.checkedPort = new HashSet<>();
+        GlobalValues.macList = new ArrayList<>();
+        GlobalValues.checkedMac = new HashSet<>();
+        GlobalValues.macOnlineMap = new LinkedHashMap<>();
     }
 
     @Override

@@ -3,9 +3,11 @@ package com.example.festec.udpbrodcastactivity.module.udp;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
 
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,88 +18,62 @@ public class UdpServer {
 
 
     private boolean isUdpRun = true;
-    private String ip = "255.255.255.255";//广播地址
-    private Set<Integer> portList; //指定广播接收数据端口
+    private String ip = "244.0.0.12";//组播地址 使用D类地址
+    private int port = 8888; // 发送端口
+
+    private MulticastSocket multicastSocket;
+    private InetAddress address;
 
 
-    public UdpServer(Set<Integer> clients) {
-        this.portList = clients;
+    public UdpServer() {
+        // 侦听的端口
+        try {
+            multicastSocket = new MulticastSocket(port);
+            // 使用D类地址，该地址为发起组播的那个ip段，
+            address = InetAddress.getByName(ip);
+            multicastSocket.joinGroup(address);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
 
-    public void startNow(final byte[] data) {
+    public void start(final byte[] data, final int delay){
         new Thread(new Runnable() {
             @Override
             public void run() {
-                for (final Integer udpPort : portList) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            runServerNow(udpPort, data);
+                isUdpRun = true;
+                if (multicastSocket == null) {
+                    return;
+                }
+                if (delay < 0) {
+                    return;
+                }
+                try {
+                    while (isUdpRun) {
+                        try {
+                            // 组报
+                            DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
+                            // 向组播ID，即接收group /239.0.0.1  侦听端口 8888
+                            multicastSocket.send(datagramPacket);
+                            Thread.sleep(delay);
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
                         }
-                    }).start();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }finally {
+                    if (multicastSocket != null) {
+                        multicastSocket.close();
+                    }
                 }
             }
         }).start();
     }
-    public void start(final byte[] data){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                for (final Integer udpPort : portList) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            runServer(udpPort, data);
-                        }
-                    }).start();
-                }
-            }
-        }).start();
-    }
 
-    private void runServer(int udpPort, byte[] data) {
-        DatagramSocket ds = null;
-        try {
-            ds = new DatagramSocket();
-            isUdpRun = true;
-            while (isUdpRun) {
-                InetAddress adds = InetAddress.getByName(ip);
-                DatagramPacket dp = new DatagramPacket(data, data.length, adds, udpPort);
-                ds.send(dp);
-                Thread.sleep(2000);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d(TAG, "UdpTestServer run Exception: " + e.toString());
-        } finally {
-            if (ds != null) {
-                ds.close();
-            }
-
-        }
-    }
-
-    private void runServerNow(int udpPort, byte[] data) {
-        DatagramSocket ds = null;
-        try {
-            ds = new DatagramSocket();
-            isUdpRun = true;
-            while (isUdpRun) {
-                InetAddress adds = InetAddress.getByName(ip);
-                DatagramPacket dp = new DatagramPacket(data, data.length, adds, udpPort);
-                ds.send(dp);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d(TAG, "UdpTestServer run Exception: " + e.toString());
-        } finally {
-            if (ds != null) {
-                ds.close();
-            }
-        }
-    }
 
 
 

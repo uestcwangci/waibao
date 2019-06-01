@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycle_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new PortAdapter(GlobalValues.portMacMap);
+        adapter = new PortAdapter(GlobalValues.macOnlineMap);
         recyclerView.setAdapter(adapter);
 
 
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 try {
                     BufferedWriter bw = singleLocalSocket.getBw();
-                    bw.write("map" + GlobalValues.udpPort);
+                    bw.write("queryMap");
                     bw.newLine();
                     bw.flush();
                 } catch (IOException e) {
@@ -146,20 +146,19 @@ public class MainActivity extends AppCompatActivity {
                     BufferedReader br = singleLocalSocket.getBr();
                     String line = null;
                     GlobalValues.onlineList.clear();
-                    GlobalValues.checkSet.clear();
+                    GlobalValues.macList.clear();
                     while (isRun && ((line = br.readLine()) != null)) {
                         if (!"mapDone".equals(line)) {
                             String[] strings = line.split("\\|");
-                            int udpPort = Integer.parseInt(strings[0]);
-                            String mac = strings[1];
-                            GlobalValues.portMacMap.put(udpPort, mac);
-                            GlobalValues.portList.add(udpPort);
-                            if (!"0".equals(strings[1]) && !GlobalValues.checkSet.contains(udpPort)) {
-                                GlobalValues.checkSet.add(udpPort);
-                                GlobalValues.onlineList.add(udpPort);
+                            String mac = strings[0];
+                            boolean isOnline = Boolean.parseBoolean(strings[1]);
+                            GlobalValues.macOnlineMap.put(mac, isOnline);
+                            GlobalValues.macList.add(mac);
+                            if (isOnline) {
+                                GlobalValues.onlineList.add(mac);
                             }
                         } else {
-                            Log.d(TAG, "map: " + GlobalValues.portMacMap.toString());
+                            Log.d(TAG, "map: " + GlobalValues.macOnlineMap.toString());
                             isRun = false;
                             Message msg = Message.obtain();
                             msg.what = INIT_MAP_DONE;
