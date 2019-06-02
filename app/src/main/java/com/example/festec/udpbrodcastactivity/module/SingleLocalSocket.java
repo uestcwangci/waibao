@@ -89,10 +89,12 @@ public class SingleLocalSocket {
             @Override
             public void run() {
                 try {
-                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(SingleLocalSocket.getInstance().getOs()));
-                    bw.write("quit");
-                    bw.newLine();
-                    bw.flush();
+                    if (SingleLocalSocket.getInstance().getOs() != null) {
+                        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(SingleLocalSocket.getInstance().getOs()));
+                        bw.write("quit");
+                        bw.newLine();
+                        bw.flush();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {
