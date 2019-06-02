@@ -11,7 +11,8 @@ public class GlobalValues {
     public static int tcpServerPort;
     public static List<String> onlineList;
     public static List<String> macList;
-    public static Map<String, Boolean> macOnlineMap;
+
+    public static Map<String, String> mac2IPandPortMap;
 
     public static Set<String> checkedMac;
 }

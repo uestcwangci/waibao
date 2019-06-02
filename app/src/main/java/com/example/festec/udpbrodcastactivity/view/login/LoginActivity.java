@@ -173,7 +173,7 @@ public class LoginActivity extends AppCompatActivity {
         GlobalValues.onlineList = new ArrayList<>();
         GlobalValues.macList = new ArrayList<>();
         GlobalValues.checkedMac = new HashSet<>();
-        GlobalValues.macOnlineMap = new LinkedHashMap<>();
+        GlobalValues.mac2IPandPortMap = new LinkedHashMap<>();
     }
 
     @Override

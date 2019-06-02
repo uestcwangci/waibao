@@ -30,6 +30,7 @@ public class DeviceChooseActivity extends AppCompatActivity {
         initUI();
         GlobalValues.checkedMac.clear();
 
+
     }
 
     @Override

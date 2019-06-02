@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.SslErrorHandler;
 import android.widget.Button;
 
 import com.example.festec.udpbrodcastactivity.R;
@@ -27,6 +28,7 @@ import com.example.festec.udpbrodcastactivity.view.device_choose.DeviceChooseAct
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
     private static final int INIT_MAP_DONE = 69;
@@ -86,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recycle_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new PortAdapter(GlobalValues.macOnlineMap);
+        adapter = new PortAdapter(GlobalValues.mac2IPandPortMap);
         recyclerView.setAdapter(adapter);
 
 
@@ -144,21 +146,22 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     thread1.join();
                     BufferedReader br = singleLocalSocket.getBr();
-                    String line = null;
                     GlobalValues.onlineList.clear();
                     GlobalValues.macList.clear();
+                    String line = null;
                     while (isRun && ((line = br.readLine()) != null)) {
                         if (!"mapDone".equals(line)) {
                             String[] strings = line.split("\\|");
                             String mac = strings[0];
-                            boolean isOnline = Boolean.parseBoolean(strings[1]);
-                            GlobalValues.macOnlineMap.put(mac, isOnline);
+                            String ip = strings[1];
+                            String udpPort = strings[2];
+                            GlobalValues.mac2IPandPortMap.put(mac, ip + "|" + udpPort);
                             GlobalValues.macList.add(mac);
-                            if (isOnline) {
+                            if (!"0".equalsIgnoreCase(ip)) {
                                 GlobalValues.onlineList.add(mac);
                             }
                         } else {
-                            Log.d(TAG, "map: " + GlobalValues.macOnlineMap.toString());
+                            Log.d(TAG, "map: " + GlobalValues.onlineList.toString());
                             isRun = false;
                             Message msg = Message.obtain();
                             msg.what = INIT_MAP_DONE;

@@ -34,6 +34,8 @@ import com.example.festec.udpbrodcastactivity.module.protocol.PackEmergencyProto
 import com.example.festec.udpbrodcastactivity.module.udp.UdpServer;
 import com.example.festec.udpbrodcastactivity.module.utils.ByteUtils;
 import com.example.festec.udpbrodcastactivity.module.utils.FileUtil;
+import com.example.festec.udpbrodcastactivity.view.main.MainActivity;
+import com.example.festec.udpbrodcastactivity.view.test.AudService;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -164,30 +166,36 @@ public class SendBaseFragment extends Fragment {
             case "音频":
                 view = inflater.inflate(R.layout.fragment_send_aud, container, false);
                 ToggleButton sendAud = view.findViewById(R.id.bt_send_aud);
-                final boolean[] isRecording = {false};
+//                initAudio();
+//                final boolean[] isRecording = {false};
                 sendAud.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
-                            isRecording[0] = true;
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    initAudio();
-                                    audioRec.startRecording();
-                                    while (isRecording[0]) {
-                                        int length = audioRec.read(audBuffer, 0, minBufferSize);
-                                        if (length > 0) {
-                                            send(audBuffer, length);
-                                        }
-                                    }
-                                }
-                            }).start();
+                            Intent intent = new Intent(getContext(), AudService.class);
+                            getContext().startService(intent);
+//                            isRecording[0] = true;
+//                            new Thread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    audioRec.startRecording();
+//                                    while (isRecording[0]) {
+//                                        int length = audioRec.read(audBuffer, 0, minBufferSize);
+//                                        if (length > 0) {
+//                                            send(audBuffer, length);
+//                                        }
+//                                    }
+//                                }
+//                            }).start();
                         } else {
-                            isRecording[0] = false;
-                            audioRec.stop();
-                            audioRec.release();
-                            udpServer.udpServerClose();
+                            Intent stop = new Intent(getContext(), AudService.class);
+                            getContext().stopService (stop);
+//                            isRecording[0] = false;
+//                            if (audioRec.getState() == AudioRecord.STATE_INITIALIZED) {
+//                                audioRec.stop();
+//                                audioRec.release();
+//                            }
+//                            udpServer.udpServerClose();
                         }
                     }
                 });
@@ -224,7 +232,7 @@ public class SendBaseFragment extends Fragment {
 
         minBufferSize = AudioRecord.getMinBufferSize(
                 sampleRate,
-                channelConfig, AudioFormat.ENCODING_PCM_8BIT);
+                channelConfig, AudioFormat.ENCODING_PCM_16BIT);
         Log.d(TAG, "****RecordMinBufferSize = " + minBufferSize);
         audioRec = new AudioRecord(
                 MediaRecorder.AudioSource.MIC,

@@ -1,31 +1,24 @@
 package com.example.festec.udpbrodcastactivity.module.adapters;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.festec.udpbrodcastactivity.R;
 import com.example.festec.udpbrodcastactivity.module.GlobalValues;
 
-import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
-    private Map<String, Boolean> macOnlieMap;
+    private Map<String, String> mac2IPandPortMap;
 
-    public PortAdapter(Map<String, Boolean> clients) {
-        this.macOnlieMap = clients;
+    public PortAdapter(Map<String, String> clients) {
+        this.mac2IPandPortMap = clients;
     }
 
 
@@ -42,8 +35,8 @@ public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder viewHolder, int i) {
 
-        boolean isOnline = macOnlieMap.get(GlobalValues.macList.get(i));
-        if (!isOnline) {
+        String ip = mac2IPandPortMap.get(GlobalValues.macList.get(i)).split("\\|")[0];
+        if ("0".equalsIgnoreCase(ip)) {
             viewHolder.tvOnline.setText("离线");
             viewHolder.imgIsOnline.setImageResource(R.drawable.ic_offline_icon2);
         } else {
@@ -56,7 +49,7 @@ public class PortAdapter extends RecyclerView.Adapter<PortAdapter.ViewHolder> {
 
     @Override
     public int getItemCount() {
-        return macOnlieMap.size();
+        return mac2IPandPortMap.size();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
